@@ -32,7 +32,7 @@ actual fun unzipFile(filePath: String) {
     fis.close()
 }
 
-actual fun executeADB(adbCommand: Array<String>, callback: (String) -> Unit) {
+actual fun executeADB(adbCommand: String, callback: (String) -> Unit) {
 
 }
 

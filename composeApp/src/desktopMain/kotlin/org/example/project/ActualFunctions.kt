@@ -32,10 +32,10 @@ actual fun unzipFile(filePath: String) {
     fis.close()
 }
 
-actual fun executeADB(adbCommand: Array<String>, callback: (String) -> Unit) {
+actual fun executeADB(adbCommand: String, callback: (String) -> Unit) {
     // 设置 ADB 命令
     // 启动进程
-    val process: Process = ProcessBuilder(*adbCommand).start()
+    val process: Process = ProcessBuilder(adbCommand).start()
     // 读取命令输出
     val reader =
         BufferedReader(java.io.InputStreamReader(process.inputStream))

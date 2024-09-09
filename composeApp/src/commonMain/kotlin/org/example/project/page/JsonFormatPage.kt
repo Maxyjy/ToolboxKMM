@@ -1,9 +1,12 @@
 package org.example.project.page
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,9 +21,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.example.project.component.ColorDivider
+import org.example.project.component.DimenDivider
 import org.example.project.util.JsonFormatUtil
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -33,37 +43,57 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 @Preview
 fun JsonFormatPage() {
+    var hint by remember { mutableStateOf("Please Input Json Data:") }
     var text by remember { mutableStateOf("") }
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column {
         Text(
-            "JSON Data",
-            fontSize = 18.sp,
-            modifier = Modifier.fillMaxWidth(0.8f),
-            textAlign = TextAlign.Start,
+            "Json Format",
+            fontSize = 30.sp,
+            fontWeight = FontWeight(600),
+            modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 10.dp)
         )
-        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            BasicTextField(
-                modifier = Modifier.fillMaxWidth(0.8f)
-                    .heightIn(300.dp, 600.dp)
-                    .background(Color.Gray, RoundedCornerShape(2))
-                    .padding(15.dp),
-                value = text,
-                onValueChange = {
-                    text = it
-                })
-        }
-        Button(
-            onClick = {
-                try {
-                    text = JsonFormatUtil.format(text)
-                } catch (e: Exception) {
-                    text = "Something wrong with your json"
-                }
+        Column() {
+            Text(
+                hint,
+                fontSize = 14.sp,
+                modifier = Modifier.fillMaxWidth().padding(0.dp, 0.dp, 0.dp, 10.dp),
+                textAlign = TextAlign.Start,
+            )
+            Box(
+                modifier = Modifier.fillMaxWidth().weight(1.0f, true),
+                contentAlignment = Alignment.TopStart
+            ) {
+                BasicTextField(
+                    modifier = Modifier.fillMaxWidth(0.9f)
+                        .fillMaxHeight(0.9f)
+                        .background(Color.White, RoundedCornerShape(1)  )
+                        .border(
+                            DimenDivider,
+                            color = ColorDivider,
+                            shape = RoundedCornerShape(1)
+                        )
+                        .padding(10.dp),
+                    value = text,
+                    onValueChange = {
+                        hint = "Please Input Json Data:"
+                        text = it
+                        if (text.isNotEmpty()) {
+                            CoroutineScope(Dispatchers.Default).launch {
+                                delay(300)
+                                try {
+                                    text = JsonFormatUtil.format(text)
+                                    hint = "Formatted Result:"
+                                } catch (e: Exception) {
+                                    println(e.message)
+                                    hint = "Error: \n ${e.message}"
+                                }
+                            }
+                        }
+                    })
             }
-        ) {
-            Text("Format")
         }
     }
+
 
 }
 

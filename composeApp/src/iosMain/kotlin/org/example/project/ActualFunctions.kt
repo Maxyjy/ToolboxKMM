@@ -8,7 +8,7 @@ package org.example.project
  */
 actual fun unzipFile(filePath: String) {}
 
-actual fun executeADB(adbCommand: Array<String>, callback: (String) -> Unit) {}
+actual fun executeADB(adbCommand: String, callback: (String) -> Unit) {}
 
 actual fun merge(logFiles: ArrayList<String>, mergeFilePath: String) {}
 

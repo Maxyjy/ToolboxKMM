@@ -19,13 +19,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.example.project.component.ColorDivider
 import org.example.project.component.DimenDivider
+import org.example.project.constant.ADB_DEVICE_BRAND
 import org.example.project.constant.ADB_DEVICE_LIST
+import org.example.project.constant.ADB_DEVICE_NAME
 import org.example.project.constant.ADB_REBOOT
 import org.example.project.executeADB
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -40,11 +44,20 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Preview
 fun AdbControlPage() {
     var outputText by remember { mutableStateOf("") }
+    var deviceName by remember { mutableStateOf("") }
+    var deviceBrand by remember { mutableStateOf("") }
+
     Box(modifier = Modifier.fillMaxWidth()) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth()
         ) {
+            Text(
+                "Android Command Executor",
+                fontSize = 30.sp,
+                fontWeight = FontWeight(700),
+                modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 20.dp)
+            )
+            Text("$deviceBrand $deviceName")
             BasicTextField(
                 outputText,
                 onValueChange = {
@@ -90,4 +103,13 @@ fun appendOutput(oldText: String, text: String): String {
 @Composable
 fun AdbExecuteButton(text: String, onClick: () -> Unit) {
     Button(onClick = onClick) { Text(text) }
+}
+
+fun getDeviceInfo() {
+    executeADB(ADB_DEVICE_BRAND) { line ->
+
+    }
+    executeADB(ADB_DEVICE_NAME) { line ->
+
+    }
 }
