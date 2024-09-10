@@ -6,12 +6,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,6 +28,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.example.project.component.ColorDivider
 import org.example.project.component.DimenDivider
+import org.example.project.component.RoundedCorner
 import org.example.project.util.JsonFormatUtil
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -52,11 +50,11 @@ fun JsonFormatPage() {
             fontWeight = FontWeight(600),
             modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 10.dp)
         )
-        Column() {
+        Column {
             Text(
                 hint,
                 fontSize = 14.sp,
-                modifier = Modifier.fillMaxWidth().padding(0.dp, 0.dp, 0.dp, 10.dp),
+                modifier = Modifier.fillMaxWidth().padding(2.dp, 0.dp, 0.dp, 10.dp),
                 textAlign = TextAlign.Start,
             )
             Box(
@@ -64,13 +62,13 @@ fun JsonFormatPage() {
                 contentAlignment = Alignment.TopStart
             ) {
                 BasicTextField(
-                    modifier = Modifier.fillMaxWidth(0.9f)
-                        .fillMaxHeight(0.9f)
-                        .background(Color.White, RoundedCornerShape(1)  )
+                    modifier = Modifier.fillMaxWidth()
+                        .fillMaxHeight(0.8f)
+                        .background(Color.White, RoundedCornerShape(RoundedCorner)  )
                         .border(
                             DimenDivider,
                             color = ColorDivider,
-                            shape = RoundedCornerShape(1)
+                            shape = RoundedCornerShape(RoundedCorner)
                         )
                         .padding(10.dp),
                     value = text,

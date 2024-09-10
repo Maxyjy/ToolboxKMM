@@ -26,3 +26,7 @@ val ADB_DUMP_MEM_INFO = "$ADB_DUMP_SYS meminfo com.hihonor.redteamobile.roaming"
 val ADB_SHOW_TOP_ACTIVITY = "$ADB_DUMP_SYS activity top | grep ACTIVITY"
 
 //adb shell dumpsys activity top | grep ACTIVITY
+
+//切换语言
+//切换地区
+//切换mcc

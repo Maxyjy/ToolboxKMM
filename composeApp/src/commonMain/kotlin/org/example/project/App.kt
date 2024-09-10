@@ -1,5 +1,7 @@
 package org.example.project
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,6 +14,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import org.example.project.component.ColorDivider
 import org.example.project.component.DimenDivider
@@ -30,6 +33,7 @@ import org.example.project.component.SideBar
 @Composable
 @Preview
 fun App() {
+
     MaterialTheme {
         var rightPanelIndex by remember { mutableStateOf(0) }
         Row(
@@ -47,7 +51,7 @@ fun App() {
                     .fillMaxWidth()
                     .fillMaxHeight()
                     .background(Color(0xfff7f7f7))
-                    .padding(20.dp)
+                    .padding(20.dp),
             ) {
                 when (rightPanelIndex) {
                     0 -> {

@@ -13,10 +13,10 @@ fun main() = application {
     Window(
         icon = painterResource(Res.drawable.icon_adb),
         onCloseRequest = ::exitApplication,
-        state = rememberWindowState(width = 1000.dp, height = 700.dp),
+        state = rememberWindowState(width = 850.dp, height = 700.dp),
         title = "Tool",
     ) {
-        window.minimumSize = Dimension(1000, 700)
+        window.minimumSize = Dimension(850, 700)
         App()
     }
 }

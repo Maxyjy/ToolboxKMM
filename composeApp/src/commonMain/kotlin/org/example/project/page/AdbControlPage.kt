@@ -27,6 +27,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.example.project.component.ColorDivider
 import org.example.project.component.DimenDivider
+import org.example.project.component.RoundedCorner
 import org.example.project.constant.ADB_DEVICE_BRAND
 import org.example.project.constant.ADB_DEVICE_LIST
 import org.example.project.constant.ADB_DEVICE_NAME
@@ -66,11 +67,11 @@ fun AdbControlPage() {
                     .border(
                         DimenDivider,
                         color = ColorDivider,
-                        shape = RoundedCornerShape(2)
+                        shape = RoundedCornerShape(RoundedCorner)
                     )
                     .background(
                         Color.White,
-                        RoundedCornerShape(2)
+                        RoundedCornerShape(RoundedCorner)
                     ).padding(10.dp)
             )
             AdbExecuteButton("Reboot") {

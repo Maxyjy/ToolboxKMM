@@ -27,11 +27,11 @@ class LogProcessor {
         private const val APP_LOG_PREFIX = "applogcat-log."
         private const val FILE_NAME_MERGED_FULL_LOG = "merged_full.log"
         private const val FILE_NAME_MERGED_PACKAGE_ONLY_LOG = "merged_package_only.log"
-        private val MERGE_FILE = "/$FILE_NAME_MERGED_FULL_LOG"
-        private val PACKAGE_ONLY_FILE = "/$FILE_NAME_MERGED_PACKAGE_ONLY_LOG"
+        private const val MERGE_FILE = "/$FILE_NAME_MERGED_FULL_LOG"
+        private const val PACKAGE_ONLY_FILE = "/$FILE_NAME_MERGED_PACKAGE_ONLY_LOG"
 
         interface LogProcessListener {
-            fun onStep(info: String)
+            fun onStep(progress: Float, info: String)
             fun onResult(isSuccess: Boolean)
         }
 
@@ -41,41 +41,43 @@ class LogProcessor {
                 try {
                     rootMeta?.let {
                         if (!rootMeta.isDirectory) {
-                            listener.onStep("The path is not a directory")
+                            listener.onStep(0f, "The path is not a directory")
                         }
 
                         // find all gz file
                         val zipFiles = findAllGzFile(rootMeta, rootPath)
-                        listener.onStep("log zip file found, total size:[${zipFiles.size}]")
+                        listener.onStep(0.25f, "Log zip file found, total size [${zipFiles.size}]")
 
                         // decompress all gz file
                         val logFiles = decompressGzFiles(zipFiles)
-                        listener.onStep("decompress all log zip file:[${zipFiles.size}]")
+                        listener.onStep(0.4f, "Decompress all log zip file [${zipFiles.size}]")
 
                         // merge all log file
                         merge(logFiles, "$rootPath$MERGE_FILE")
-                        listener.onStep("merge log result file:[$rootPath$MERGE_FILE]")
+                        listener.onStep(0.65f, "Merge log result file [$rootPath$MERGE_FILE]")
 
                         // find all process id
                         val processId = findProcessId("$rootPath$MERGE_FILE")
                         if (processId.size > 0) {
-                            listener.onStep("found process id :[$processId]")
+                            listener.onStep(0.80f, "Found all process id [$processId]")
                         } else {
-                            listener.onStep("process id not found")
+                            listener.onStep(0.80f, "Process id not found !")
                         }
 
-                        // filter only by process
-                        filterOnlyRedTeaProcessId(
-                            processId, "$rootPath$MERGE_FILE", "$rootPath$PACKAGE_ONLY_FILE"
-                        ) { line ->
-                            return@filterOnlyRedTeaProcessId getProcessIdByLogLine(line)
+                        if (processId.size > 0) {
+                            // filter only by process
+                            filterOnlyRedTeaProcessId(
+                                processId, "$rootPath$MERGE_FILE", "$rootPath$PACKAGE_ONLY_FILE"
+                            ) { line ->
+                                return@filterOnlyRedTeaProcessId getProcessIdByLogLine(line)
+                            }
                         }
 
-                        listener.onStep("log filter by package name result file:[$rootPath$PACKAGE_ONLY_FILE]")
+                        listener.onStep(1f,"Log filter by package name result file [$rootPath$PACKAGE_ONLY_FILE]")
                         listener.onResult(true)
                     }
                 } catch (e: Exception) {
-                    listener.onStep("exception :[${e.message}]")
+                    listener.onStep(0f,"exception :[${e.message}]")
                     listener.onResult(false)
                 }
             }
