@@ -39,6 +39,7 @@ import kotlinproject.composeapp.generated.resources.icon_json_format
 import kotlinproject.composeapp.generated.resources.icon_log_merge
 import kotlinproject.composeapp.generated.resources.icon_mcc_change
 import kotlinproject.composeapp.generated.resources.icon_performance
+import kotlinproject.composeapp.generated.resources.icon_red_tea
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview

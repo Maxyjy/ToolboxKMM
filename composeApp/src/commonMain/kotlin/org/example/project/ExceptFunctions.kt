@@ -1,16 +1,22 @@
 package org.example.project
 
+import org.example.project.adb.AdbExecuteCallback
+
 /**
  *
  *
  * @author YangJianyu
  * @date 2024/8/28
  */
+expect fun getSystemCurrentTimeMillis(): Long
+
+expect fun formatTime(timeMillis: Long): String
+
 expect fun unzipFile(filePath: String)
 
 expect fun merge(logFiles: ArrayList<String>, mergeFilePath: String)
 
-expect fun executeADB(adbCommand: String, callback: (String) -> Unit)
+expect fun executeADB(adbCommand: String, callback: AdbExecuteCallback)
 
 expect fun readFromFile(filePath: String, callback: (String) -> Unit)
 

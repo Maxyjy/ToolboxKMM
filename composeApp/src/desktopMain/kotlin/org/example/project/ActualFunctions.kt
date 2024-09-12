@@ -1,5 +1,9 @@
 package org.example.project
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.example.project.adb.AdbExecuteCallback
 import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.File
@@ -7,7 +11,9 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.FileReader
 import java.io.FileWriter
-import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.zip.GZIPInputStream
 
 /**
@@ -16,6 +22,16 @@ import java.util.zip.GZIPInputStream
  * @author YangJianyu
  * @date 2024/8/28
  */
+actual fun getSystemCurrentTimeMillis(): Long {
+    return System.currentTimeMillis()
+}
+
+actual fun formatTime(timeMillis: Long): String {
+    val sDateFormat = SimpleDateFormat("mm:ss")
+    val time = sDateFormat.format(Date(timeMillis))
+    return time
+}
+
 actual fun unzipFile(filePath: String) {
     val unzipPath = filePath.replace(".gz", "")
     val fis = FileInputStream(filePath)
@@ -32,21 +48,36 @@ actual fun unzipFile(filePath: String) {
     fis.close()
 }
 
-actual fun executeADB(adbCommand: String, callback: (String) -> Unit) {
-    // 设置 ADB 命令
-    // 启动进程
-    val process: Process = ProcessBuilder(adbCommand).start()
-    // 读取命令输出
-    val reader =
-        BufferedReader(java.io.InputStreamReader(process.inputStream))
-    var line: String?
-    while ((reader.readLine().also { line = it }) != null) {
-        line?.let { callback.invoke(it) }
-        println(line)
+actual fun executeADB(adbCommand: String, callback: AdbExecuteCallback) {
+    CoroutineScope(Dispatchers.Default).launch {
+        try {
+            // 设置 ADB 命令
+            // 启动进程
+            println(adbCommand)
+            val process: Process = ProcessBuilder(adbCommand.split(" ")).start()
+
+            // 读取命令输出
+            val reader = process.inputReader()
+            var line: String?
+            while ((reader.readLine().also { line = it }) != null) {
+                line?.let { callback.onPrint(it) }
+                println(line)
+            }
+            val errorReader = process.errorReader()
+            // 错误输出
+            var errorLine: String?
+            while ((errorReader.readLine().also { errorLine = it }) != null) {
+                errorLine?.let { callback.onPrint(it) }
+                println(errorLine)
+            }
+            // 等待命令执行完毕
+            val exitCode: Int = process.waitFor()
+            callback.onExit(exitCode)
+            println("ADB command executed with exit code: $exitCode")
+        } catch (e: Exception) {
+            println(e.message)
+        }
     }
-    // 等待命令执行完毕
-    val exitCode: Int = process.waitFor()
-    println("ADB command executed with exit code: $exitCode")
 }
 
 actual fun merge(logFiles: ArrayList<String>, mergeFilePath: String) {

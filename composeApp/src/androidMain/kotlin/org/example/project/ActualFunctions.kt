@@ -1,5 +1,6 @@
 package org.example.project
 
+import org.example.project.adb.AdbExecuteCallback
 import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.File
@@ -8,6 +9,9 @@ import java.io.FileOutputStream
 import java.io.FileReader
 import java.io.FileWriter
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.zip.GZIPInputStream
 
 /**
@@ -16,6 +20,16 @@ import java.util.zip.GZIPInputStream
  * @author YangJianyu
  * @date 2024/8/28
  */
+actual fun getSystemCurrentTimeMillis(): Long {
+    return System.currentTimeMillis()
+}
+
+actual fun formatTime(timeMillis: Long): String {
+    val sDateFormat = SimpleDateFormat("HH:mm:ss")
+    val time = sDateFormat.format(Date(timeMillis))
+    return time
+}
+
 actual fun unzipFile(filePath: String) {
     val unzipPath = filePath.replace(".gz", "")
     val fis = FileInputStream(filePath)
@@ -32,7 +46,7 @@ actual fun unzipFile(filePath: String) {
     fis.close()
 }
 
-actual fun executeADB(adbCommand: String, callback: (String) -> Unit) {
+actual fun executeADB(adbCommand: String, callback: AdbExecuteCallback){
 
 }
 
