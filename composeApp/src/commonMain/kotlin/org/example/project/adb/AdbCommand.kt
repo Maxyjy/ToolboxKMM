@@ -11,6 +11,7 @@ const val FILE_PATH_HOLDER = "{FILE_NAME_HOLDER}"
 const val DIR_PATH_HOLDER = "{DIR_NAME_HOLDER}"
 const val PID_HOLDER = "{PID_HOLDER}"
 const val DISPLAY_ID_HOLDER = "{DISPLAY_ID_HOLDER}"
+const val MCC_HOLDER = "{MCC_HOLDER}"
 
 // root
 const val ADB_ROOT = "adb root"
@@ -58,11 +59,39 @@ const val ADB_SAVE_SCREEN_SHOT =
 const val ADB_SAVE_SCREEN_RECORD =
     "adb pull /sdcard/Pictures/Screenshots/screen_shot.mp4 $DIR_PATH_HOLDER"
 
+const val ADB_OPEN_LANGUAGE_CHANGE_SETTING =
+    "adb shell am start -a android.settings.LOCALE_SETTINGS"
 
-//切换语言
-//切换地区
-//切换mcc
-const val ADB_HONOR_MCC_ENABLE_TEST = "adb shell settings put system redtea_mcc_lev 2" // 启用 mcc 测试
-const val ADB_HONOR_MCC_CHANGE = "adb shell settings put global redtea_mcc " // + mcc 设置 mcc
+// honor preinstall apk, Hypercomm apk
+// honor mcc
+const val ADB_HONOR_GET_MCC_ENABLE_OVERSEA =
+    "adb shell settings get global redtea_enable_succ_lev" // 开启境外套餐
+const val ADB_HONOR_PUT_MCC_ENABLE_OVERSEA =
+    "adb shell settings put global redtea_enable_succ_lev 1" // 开启境外套餐
+const val ADB_HONOR_DELETE_MCC_ENABLE_OVERSEA =
+    "adb shell settings delete system redtea_enable_succ_lev" // 关闭境外套餐？
+
+const val ADB_HONOR_GET_MCC_LEVEL = "adb shell settings get system redtea_mcc_lev" // 启用 mcc 测试
+const val ADB_HONOR_PUT_MCC_LEVEL = "adb shell settings put system redtea_mcc_lev 2" // 启用 mcc 测试
+const val ADB_HONOR_DELETE_MCC_LEVEL =
+    "adb shell settings delete system redtea_mcc_lev" // 清除 mcc 测试参数
+
+const val ADB_HONOR_GET_MCC =
+    "adb shell settings get global redtea_mcc" // + mcc 设置 mcc
+const val ADB_HONOR_PUT_MCC =
+    "adb shell settings put global redtea_mcc $MCC_HOLDER" // + mcc 设置 mcc
+
 const val ADB_HONOR_MCC_BROAD_CAST_SEND =
-    "adb shell am broadcast -a com.hihonor.general.vsim.action.VSIM_REG_PLMN_CHANGED --es mcc "  // + mcc 发送 mcc 广播
+    "adb shell am broadcast -a com.hihonor.general.vsim.action.VSIM_REG_PLMN_CHANGED --es mcc $MCC_HOLDER"  // + mcc 发送 mcc 广播
+
+// oppo mcc
+const val ADB_OPPO_GET_MCC_1 = "adb shell getprop android.telephony.mcc_change"
+const val ADB_OPPO_PUT_MCC_1 = "adb shell setprop android.telephony.mcc_change $MCC_HOLDER"
+
+const val ADB_OPPO_GET_MCC_2 = "adb shell getprop android.telephony.mcc_change2"
+const val ADB_OPPO_PUT_MCC_2 = "adb shell setprop android.telephony.mcc_change2 $MCC_HOLDER"
+
+const val ADB_OPPO_MCC_BROAD_CAST_SEND =
+    "adb shell am broadcast -a android.telephony.action.mcc_change --es mcc $MCC_HOLDER -n com.redteamobile.roaming/.receiver.MccChangeReceiver"
+
+const val SCREEN_COPY = "scrcpy"

@@ -14,7 +14,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import org.example.project.component.ColorDivider
 import org.example.project.component.DimenDivider
@@ -24,7 +23,6 @@ import org.example.project.page.ApkInspectPage
 import org.example.project.page.Base64Page
 import org.example.project.page.JsonFormatPage
 import org.example.project.page.LogProcessPage
-import org.example.project.page.MccChangePage
 import org.example.project.page.PerformancePage
 import org.example.project.page.RedTeaApkPushPage
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -63,30 +61,26 @@ fun App() {
                     }
 
                     2 -> {
-                        MccChangePage()
-                    }
-
-                    3 -> {
                         ApkInspectPage()
                     }
 
-                    4 -> {
+                    3 -> {
                         RedTeaApkPushPage()
                     }
 
-                    5 -> {
+                    4 -> {
                         DeviceExplorerPage()
                     }
 
-                    6 -> {
+                    5 -> {
                         PerformancePage()
                     }
 
-                    7 -> {
+                    6 -> {
                         JsonFormatPage()
                     }
 
-                    8 -> {
+                    7 -> {
                         Base64Page()
                     }
                 }

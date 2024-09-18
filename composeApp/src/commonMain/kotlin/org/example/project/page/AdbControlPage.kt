@@ -1,5 +1,6 @@
 package org.example.project.page
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -24,8 +26,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -37,6 +41,10 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import io.github.vinceglb.filekit.core.FileKit
 import io.github.vinceglb.filekit.core.pickFile
+import kotlinproject.composeapp.generated.resources.Res
+import kotlinproject.composeapp.generated.resources.icon_delete
+import kotlinproject.composeapp.generated.resources.icon_scrcpy
+import kotlinproject.composeapp.generated.resources.icon_send
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -50,8 +58,18 @@ import org.example.project.adb.ADB_CLEAR_DATA
 import org.example.project.adb.ADB_DEVICE_BRAND
 import org.example.project.adb.ADB_DEVICE_NAME
 import org.example.project.adb.ADB_DUMP_SHOW_TOP_ACTIVITY
+import org.example.project.adb.ADB_HONOR_DELETE_MCC_ENABLE_OVERSEA
+import org.example.project.adb.ADB_HONOR_DELETE_MCC_LEVEL
+import org.example.project.adb.ADB_HONOR_GET_MCC
+import org.example.project.adb.ADB_HONOR_GET_MCC_ENABLE_OVERSEA
+import org.example.project.adb.ADB_HONOR_GET_MCC_LEVEL
+import org.example.project.adb.ADB_HONOR_MCC_BROAD_CAST_SEND
+import org.example.project.adb.ADB_HONOR_PUT_MCC
+import org.example.project.adb.ADB_HONOR_PUT_MCC_ENABLE_OVERSEA
+import org.example.project.adb.ADB_HONOR_PUT_MCC_LEVEL
 import org.example.project.adb.ADB_INSTALL
 import org.example.project.adb.ADB_KILL_APP
+import org.example.project.adb.ADB_OPEN_LANGUAGE_CHANGE_SETTING
 import org.example.project.adb.ADB_PRINT_PATH
 import org.example.project.adb.ADB_REBOOT
 import org.example.project.adb.ADB_REMOUNT
@@ -68,9 +86,15 @@ import org.example.project.adb.AdbExecuteCallback
 import org.example.project.adb.AdbExecutor
 import org.example.project.adb.DIR_PATH_HOLDER
 import org.example.project.adb.FILE_PATH_HOLDER
+import org.example.project.adb.MCC_HOLDER
 import org.example.project.adb.PACKAGE_NAME_HOLDER
+import org.example.project.adb.SCREEN_COPY
+import org.example.project.component.ColorGray
+import org.example.project.executeADB
 import org.example.project.formatTime
 import org.example.project.getSystemCurrentTimeMillis
+import org.example.project.util.Base64Util
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
@@ -95,91 +119,136 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
     var startRecordingTime by remember { mutableStateOf(0L) }
     var readableRecordingDuration by remember { mutableStateOf("") }
 
-    fun executeADB(adbCommand: String) {
-        when (adbCommand) {
-            ADB_DEVICE_NAME -> {
-                AdbExecutor.findConnectedDeviceName {
-                    deviceName = if (it.contains("no devices")) {
-                        "No Connected Device"
-                    } else {
-                        it
-                    }
+    var refreshMccImmediately by remember { mutableStateOf(true) }
+    var honorCurrentMcc by remember { mutableStateOf("") }
+    var honorCurrentMccLevel by remember { mutableStateOf("") }
+    var honorCurrentMccOverseaEnable by remember { mutableStateOf(false) }
+
+    fun execADB(adbCommand: String) = when (adbCommand) {
+        ADB_DEVICE_NAME -> {
+            AdbExecutor.findConnectedDeviceName {
+                deviceName = if (it.contains("no devices")) {
+                    "No Connected Device"
+                } else {
+                    it
                 }
             }
+        }
 
-            ADB_DEVICE_BRAND -> {
-                AdbExecutor.findConnectedDeviceBrand {
-                    deviceBrand = if (it.contains("no devices")) {
-                        ""
-                    } else {
-                        it
-                    }
+        ADB_DEVICE_BRAND -> {
+            AdbExecutor.findConnectedDeviceBrand {
+                deviceBrand = if (it.contains("no devices")) {
+                    ""
+                } else {
+                    it
                 }
             }
+        }
 
-            ADB_SCREEN_SHOT -> {
-                AdbExecutor.screenshot(object : AdbExecuteCallback {
-                    override fun onPrint(line: String) {
-                        outputText = appendOutput(outputText, line)
-                    }
+        ADB_SCREEN_SHOT -> {
+            AdbExecutor.screenshot(object : AdbExecuteCallback {
+                override fun onPrint(line: String) {
+                    outputText = appendOutput(outputText, line)
+                }
 
-                    override fun onExit(exitCode: Int) {
-                        if (exitCode == 0) {
-                            outputText = appendOutput(outputText, "capture screenshot successful")
-                        }
-                    }
-                })
-            }
-
-            ADB_SCREEN_START_RECORD -> {
-                isRecording = true
-                startRecordingTime = getSystemCurrentTimeMillis()
-                readableRecordingDuration = "00:00"
-                CoroutineScope(Dispatchers.Default).launch {
-                    while (isRecording) {
-                        delay(1000L)
-                        readableRecordingDuration =
-                            formatTime(getSystemCurrentTimeMillis() - startRecordingTime)
+                override fun onExit(exitCode: Int) {
+                    if (exitCode == 0) {
+                        outputText = appendOutput(outputText, "capture screenshot successful")
                     }
                 }
-                AdbExecutor.startRecord(object : AdbExecuteCallback {
-                    override fun onPrint(line: String) {
-                        outputText = appendOutput(outputText, line)
-                    }
+            })
+        }
 
-                    override fun onExit(exitCode: Int) {
-                        if (adbCommand == ADB_SCREEN_FIND_RECORD_PID || adbCommand == ADB_SCREEN_START_RECORD) {
-                            isRecording = false
-                        }
-                    }
-                })
+        ADB_SCREEN_START_RECORD -> {
+            isRecording = true
+            startRecordingTime = getSystemCurrentTimeMillis()
+            readableRecordingDuration = "00:00"
+            CoroutineScope(Dispatchers.Default).launch {
+                while (isRecording) {
+                    delay(1000L)
+                    readableRecordingDuration =
+                        formatTime(getSystemCurrentTimeMillis() - startRecordingTime)
+                }
             }
+            AdbExecutor.startRecord(object : AdbExecuteCallback {
+                override fun onPrint(line: String) {
+                    outputText = appendOutput(outputText, line)
+                }
 
-            ADB_SCREEN_STOP_RECORD -> {
-                AdbExecutor.stopRecord(object : AdbExecuteCallback {
-                    override fun onPrint(line: String) {
-                        outputText = appendOutput(outputText, line)
-                    }
-
-                    override fun onExit(exitCode: Int) {
+                override fun onExit(exitCode: Int) {
+                    if (adbCommand == ADB_SCREEN_FIND_RECORD_PID || adbCommand == ADB_SCREEN_START_RECORD) {
                         isRecording = false
                     }
-                })
-            }
+                }
+            })
+        }
 
-            else -> {
-                AdbExecutor.exec(adbCommand, object : AdbExecuteCallback {
-                    override fun onPrint(line: String) {
-                        outputText = appendOutput(outputText, line)
-                    }
+        ADB_SCREEN_STOP_RECORD -> {
+            AdbExecutor.stopRecord(object : AdbExecuteCallback {
+                override fun onPrint(line: String) {
+                    outputText = appendOutput(outputText, line)
+                }
 
-                    override fun onExit(exitCode: Int) {
-                        if (exitCode != 0) {
-                            outputText = appendOutput(outputText, "exit code [$exitCode]")
-                        }
+                override fun onExit(exitCode: Int) {
+                    isRecording = false
+                }
+            })
+        }
+
+        ADB_HONOR_GET_MCC -> {
+            executeADB(ADB_HONOR_GET_MCC, object : AdbExecuteCallback {
+                override fun onPrint(line: String) {
+                    honorCurrentMcc = if (line == "null") {
+                        ""
+                    } else {
+                        line
                     }
-                })
-            }
+                    println("ADB_HONOR_GET_MCC $line")
+                }
+            })
+        }
+
+        ADB_HONOR_GET_MCC_LEVEL -> {
+            executeADB(ADB_HONOR_GET_MCC_LEVEL, object : AdbExecuteCallback {
+                override fun onPrint(line: String) {
+                    honorCurrentMccLevel = if (line == "null") {
+                        ""
+                    } else {
+                        line
+                    }
+                    println("ADB_HONOR_GET_MCC_LEVEL $line")
+                }
+            })
+        }
+
+        ADB_HONOR_GET_MCC_ENABLE_OVERSEA -> {
+            executeADB(ADB_HONOR_GET_MCC_ENABLE_OVERSEA, object : AdbExecuteCallback {
+                override fun onPrint(line: String) {
+                    honorCurrentMccOverseaEnable = if (line == "1") {
+                        true
+                    } else {
+                        false
+                    }
+                    println("ADB_HONOR_GET_MCC_ENABLE_OVERSEA $line")
+                }
+            })
+        }
+
+        else -> {
+            AdbExecutor.exec(adbCommand, object : AdbExecuteCallback {
+                override fun onPrint(line: String) {
+                    outputText = appendOutput(outputText, line)
+                }
+
+                override fun onExit(exitCode: Int) {
+                    if (exitCode != 0) {
+                        outputText = appendOutput(outputText, "exit code [$exitCode]")
+                    }
+                    if (adbCommand == ADB_HONOR_PUT_MCC || adbCommand == ADB_HONOR_PUT_MCC_LEVEL || adbCommand == ADB_HONOR_PUT_MCC_ENABLE_OVERSEA) {
+                        refreshMccImmediately = true
+                    }
+                }
+            })
         }
     }
 
@@ -187,11 +256,23 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
         // 进入组件时执行，lifecycleOwner 改变后重新执行（先回调 onDispose）
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_START) {
+                Base64Util.base64("this is a test string let's test some base 64")
                 CoroutineScope(Dispatchers.Default).launch {
-                    while(true){
-                        executeADB(ADB_DEVICE_BRAND)
-                        executeADB(ADB_DEVICE_NAME)
+                    while (true) {
+                        execADB(ADB_DEVICE_BRAND)
+                        execADB(ADB_DEVICE_NAME)
+                        execADB(ADB_HONOR_GET_MCC)
+                        execADB(ADB_HONOR_GET_MCC_LEVEL)
+                        execADB(ADB_HONOR_GET_MCC_ENABLE_OVERSEA)
                         delay(5000)
+                    }
+                }
+                CoroutineScope(Dispatchers.Default).launch {
+                    if (refreshMccImmediately) {
+                        execADB(ADB_HONOR_GET_MCC)
+                        execADB(ADB_HONOR_GET_MCC_LEVEL)
+                        execADB(ADB_HONOR_GET_MCC_ENABLE_OVERSEA)
+                        refreshMccImmediately = false
                     }
                 }
             }
@@ -214,27 +295,68 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
             )
             Row {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        fontSize = 14.sp,
-                        modifier = Modifier.fillMaxWidth().padding(2.dp, 0.dp, 0.dp, 10.dp),
-                        textAlign = TextAlign.Start,
-                        text = "$deviceBrand $deviceName"
-                    )
-                    BasicTextField(
-                        outputText,
-                        onValueChange = {
-                        },
-                        modifier = Modifier.fillMaxWidth().fillMaxHeight()
-                            .border(
-                                DimenDivider,
-                                color = ColorDivider,
-                                shape = RoundedCornerShape(RoundedCorner)
-                            )
-                            .background(
-                                Color.White,
-                                RoundedCornerShape(RoundedCorner)
-                            ).padding(10.dp)
-                    )
+                    Row {
+                        Text(
+                            fontSize = 14.sp,
+                            modifier = Modifier.weight(1f).padding(2.dp, 0.dp, 0.dp, 10.dp),
+                            textAlign = TextAlign.Start,
+                            text = "$deviceBrand $deviceName"
+                        )
+                        Image(
+                            painter = painterResource(Res.drawable.icon_scrcpy),
+                            "scrcpy",
+                            colorFilter = ColorFilter.tint(
+                                ColorText
+                            ),
+                            modifier = Modifier.align(Alignment.CenterVertically)
+                                .padding(5.dp)
+                                .height(22.dp)
+                                .width(22.dp).clickable {
+                                    AdbExecutor.exec(SCREEN_COPY, object : AdbExecuteCallback {
+                                        override fun onPrint(line: String) {
+                                        }
+
+                                        override fun onExit(exitCode: Int) {
+                                            println("scrcpy$exitCode")
+                                            if (exitCode == -1) {
+                                                outputText =
+                                                    appendOutput(outputText, "scrcpy not install")
+                                            }
+                                        }
+                                    })
+                                },
+                        )
+                    }
+                    Box {
+                        BasicTextField(
+                            outputText,
+                            onValueChange = {
+                            },
+                            modifier = Modifier.fillMaxWidth().fillMaxHeight()
+                                .border(
+                                    DimenDivider,
+                                    color = ColorDivider,
+                                    shape = RoundedCornerShape(RoundedCorner)
+                                )
+                                .background(
+                                    Color.White,
+                                    RoundedCornerShape(RoundedCorner)
+                                ).padding(10.dp)
+                        )
+                        Image(
+                            painter = painterResource(Res.drawable.icon_delete),
+                            "delete log",
+                            colorFilter = ColorFilter.tint(
+                                ColorGray
+                            ),
+                            modifier = Modifier.align(Alignment.BottomEnd)
+                                .padding(end = 10.dp, bottom = 10.dp)
+                                .height(20.dp)
+                                .width(20.dp).clickable {
+                                    outputText = ""
+                                },
+                        )
+                    }
                 }
                 Column(
                     modifier = Modifier
@@ -253,7 +375,7 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                                 packageNameInputHint = true
                             }
                             // execute
-                            executeADB(cmd)
+                            execADB(cmd)
                         } else if (adbCommand.contains(FILE_PATH_HOLDER)) {
                             // require pick a file
                             CoroutineScope(Dispatchers.Default).launch {
@@ -265,7 +387,7 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                                         if (file.path?.isNotEmpty() == true) {
                                             cmd = cmd.replace(FILE_PATH_HOLDER, file.path!!)
                                             // execute
-                                            executeADB(cmd)
+                                            execADB(cmd)
                                         }
                                     }
                                 }
@@ -281,14 +403,14 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                                         if (file.path?.isNotEmpty() == true) {
                                             cmd = cmd.replace(DIR_PATH_HOLDER, file.path!!)
                                             // execute
-                                            executeADB(cmd)
+                                            execADB(cmd)
                                         }
                                     }
                                 }
                             }
                         } else {
                             // execute directly
-                            executeADB(adbCommand)
+                            execADB(adbCommand)
                         }
                     }
 
@@ -298,6 +420,7 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                             modifier = Modifier.fillMaxWidth().padding(0.dp, 5.dp, 0.dp, 5.dp),
                             textAlign = TextAlign.Start,
                             text = "Target Package Name :",
+                            fontWeight = FontWeight(600),
                             color = if (packageNameInputHint) {
                                 ColorTheme
                             } else {
@@ -319,7 +442,7 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                                 .background(
                                     Color.White,
                                     RoundedCornerShape(RoundedCorner)
-                                ).padding(10.dp)
+                                ).padding(top = 8.dp, bottom = 8.dp, start = 10.dp, end = 10.dp)
                         )
                     }
                     AppPanel(onButtonClick)
@@ -327,6 +450,12 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                     ScreenPanel(
                         isRecording,
                         readableRecordingDuration,
+                        onButtonClick
+                    )
+                    MccPanel(
+                        honorCurrentMcc,
+                        honorCurrentMccLevel,
+                        honorCurrentMccOverseaEnable,
                         onButtonClick
                     )
                 }
@@ -342,7 +471,8 @@ fun AppPanel(onButtonClick: (String) -> Any) {
             fontSize = 12.sp,
             modifier = Modifier.fillMaxWidth().padding(0.dp, 0.dp, 0.dp, 5.dp),
             textAlign = TextAlign.Start,
-            text = "App"
+            text = "App",
+            fontWeight = FontWeight(600)
         )
         Column {
             Row {
@@ -389,14 +519,20 @@ fun DevicePanel(onButtonClick: (String) -> Any) {
             fontSize = 12.sp,
             modifier = Modifier.fillMaxWidth().padding(0.dp, 0.dp, 0.dp, 5.dp),
             textAlign = TextAlign.Start,
+            fontWeight = FontWeight(600),
             text = "Device"
         )
         Row {
+            AdbExecuteButton("Remount") {
+                onButtonClick.invoke(ADB_REMOUNT)
+            }
             AdbExecuteButton("Root") {
                 onButtonClick.invoke(ADB_ROOT)
             }
-            AdbExecuteButton("Remount") {
-                onButtonClick.invoke(ADB_REMOUNT)
+        }
+        Row {
+            AdbExecuteButton("Language Change") {
+                onButtonClick.invoke(ADB_OPEN_LANGUAGE_CHANGE_SETTING)
             }
             AdbExecuteButton("Reboot") {
                 onButtonClick.invoke(ADB_REBOOT)
@@ -411,14 +547,14 @@ fun ScreenPanel(
     readableRecordingDuration: String,
     onButtonClick: (String) -> Any
 ) {
-
     Column {
         Row {
             Text(
                 fontSize = 12.sp,
                 modifier = Modifier.wrapContentWidth().padding(0.dp, 0.dp, 0.dp, 5.dp),
                 textAlign = TextAlign.Start,
-                text = "ScreenShot/Record"
+                fontWeight = FontWeight(600),
+                text = "ScreenShot / Record"
             )
             if (isRecording) {
                 Text(
@@ -447,6 +583,80 @@ fun ScreenPanel(
             }
             AdbExecuteButton("Save") {
                 onButtonClick.invoke(ADB_SAVE_SCREEN_RECORD)
+            }
+        }
+    }
+}
+
+@Composable
+fun MccPanel(
+    honorCurrentMcc: String,
+    honorCurrentMccLevel: String,
+    honorCurrentMccOverseaEnable: Boolean,
+    onButtonClick: (String) -> Any
+) {
+    var mcc by remember { mutableStateOf(honorCurrentMcc) }
+
+    Column {
+        Text(
+            fontSize = 12.sp,
+            modifier = Modifier.fillMaxWidth().padding(0.dp, 0.dp, 0.dp, 5.dp),
+            textAlign = TextAlign.Start,
+            text = "Honor Mobile Country Code : [$honorCurrentMcc]",
+            fontWeight = FontWeight(600),
+        )
+        Box {
+            BasicTextField(
+                mcc,
+                onValueChange = {
+                    mcc = it
+                },
+                modifier = Modifier.fillMaxWidth().wrapContentHeight()
+                    .border(
+                        DimenDivider,
+                        color = ColorDivider,
+                        shape = RoundedCornerShape(RoundedCorner)
+                    )
+                    .background(
+                        Color.White,
+                        RoundedCornerShape(RoundedCorner)
+                    ).padding(top = 8.dp, bottom = 8.dp, start = 10.dp, end = 10.dp)
+            )
+            Image(
+                painter = painterResource(Res.drawable.icon_send),
+                "send mcc",
+                colorFilter = ColorFilter.tint(
+                    ColorText
+                ),
+                modifier = Modifier.align(Alignment.CenterEnd).padding(end = 5.dp)
+                    .height(20.dp)
+                    .width(20.dp).clickable {
+                        onButtonClick.invoke(ADB_HONOR_PUT_MCC.replace(MCC_HOLDER, mcc))
+                        onButtonClick.invoke(ADB_HONOR_MCC_BROAD_CAST_SEND.replace(MCC_HOLDER, mcc))
+                    },
+            )
+        }
+        Text(
+            fontSize = 12.sp,
+            modifier = Modifier.fillMaxWidth().padding(0.dp, 0.dp, 0.dp, 5.dp),
+            textAlign = TextAlign.Start,
+            fontWeight = FontWeight(600),
+            text = "Test Level: [$honorCurrentMccLevel]  Oversea Enabled: [$honorCurrentMccOverseaEnable]"
+        )
+        Row {
+            AdbExecuteButton("Test Level") {
+                onButtonClick.invoke(ADB_HONOR_PUT_MCC_LEVEL)
+            }
+            AdbExecuteButton("Delete Level") {
+                onButtonClick.invoke(ADB_HONOR_DELETE_MCC_LEVEL)
+            }
+        }
+        Row {
+            AdbExecuteButton("Oversea Enabled") {
+                onButtonClick.invoke(ADB_HONOR_PUT_MCC_ENABLE_OVERSEA)
+            }
+            AdbExecuteButton("Oversea Disable") {
+                onButtonClick.invoke(ADB_HONOR_DELETE_MCC_ENABLE_OVERSEA)
             }
         }
     }

@@ -73,13 +73,12 @@ fun SideBar(onIndexChangeListener: (Int) -> Unit) {
 
         MenuItem(0, "ADB Execute", Res.drawable.icon_adb, onItemClickListener, selectedIndex)
         MenuItem(1, "Log Merge", Res.drawable.icon_log_merge, onItemClickListener, selectedIndex)
-        MenuItem(2, "Mcc Change", Res.drawable.icon_mcc_change, onItemClickListener, selectedIndex)
-        MenuItem(3, "APK Inspect", Res.drawable.icon_app_inspect, onItemClickListener, selectedIndex)
-        MenuItem(4, "APK Push", Res.drawable.icon_apk, onItemClickListener, selectedIndex)
-        MenuItem(5, "File Explorer", Res.drawable.icon_file_explorer, onItemClickListener, selectedIndex)
-        MenuItem(6, "Performance", Res.drawable.icon_performance, onItemClickListener, selectedIndex)
-        MenuItem(7, "Json Format", Res.drawable.icon_json_format, onItemClickListener, selectedIndex)
-        MenuItem(8, "Base64", Res.drawable.icon_base_64, onItemClickListener, selectedIndex)
+        MenuItem(2, "APK Inspect", Res.drawable.icon_app_inspect, onItemClickListener, selectedIndex)
+        MenuItem(3, "APK Push", Res.drawable.icon_apk, onItemClickListener, selectedIndex)
+        MenuItem(4, "File Explorer", Res.drawable.icon_file_explorer, onItemClickListener, selectedIndex)
+        MenuItem(5, "Performance", Res.drawable.icon_performance, onItemClickListener, selectedIndex)
+        MenuItem(6, "Json Format", Res.drawable.icon_json_format, onItemClickListener, selectedIndex)
+        MenuItem(7, "Base64", Res.drawable.icon_base_64, onItemClickListener, selectedIndex)
     }
 }
 

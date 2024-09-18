@@ -61,21 +61,22 @@ actual fun executeADB(adbCommand: String, callback: AdbExecuteCallback) {
             var line: String?
             while ((reader.readLine().also { line = it }) != null) {
                 line?.let { callback.onPrint(it) }
-                println(line)
+                println("cmd print :$line")
             }
             val errorReader = process.errorReader()
             // 错误输出
             var errorLine: String?
             while ((errorReader.readLine().also { errorLine = it }) != null) {
                 errorLine?.let { callback.onPrint(it) }
-                println(errorLine)
+                println("cmd error :$errorLine")
             }
             // 等待命令执行完毕
             val exitCode: Int = process.waitFor()
             callback.onExit(exitCode)
             println("ADB command executed with exit code: $exitCode")
         } catch (e: Exception) {
-            println(e.message)
+            callback.onExit(-1)
+            println("cmd exception :" + e.message)
         }
     }
 }
