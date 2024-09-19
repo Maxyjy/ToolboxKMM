@@ -1,7 +1,6 @@
 package org.example.project.component
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.Indication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -58,11 +57,11 @@ fun SideBar(onIndexChangeListener: (Int) -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Box(modifier = Modifier.height(70.dp).padding(vertical = 15.dp)) {
+        Box(modifier = Modifier.padding(top = 15.dp, bottom = 10.dp)) {
             Image(
                 painter = painterResource(Res.drawable.icon_app_logo),
                 "app logo",
-                modifier = Modifier.height(40.dp).width(40.dp),
+                modifier = Modifier.height(50.dp).width(50.dp),
             )
         }
 
@@ -107,7 +106,7 @@ fun MenuItem(
             ).padding(vertical = 4.dp, horizontal = 4.dp)
             .background(
                 if (isSelect) {
-                    Color(0xfffceaeb)
+                    ColorThemeHint
                 } else {
                     Color(0x000000)
                 }, RoundedCornerShape(10)

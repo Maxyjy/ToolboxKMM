@@ -20,8 +20,9 @@ import androidx.compose.ui.unit.dp
  * @date 2024/8/30
  */
 val ColorText = Color(0xe6000000)
-val ColorTheme = Color(0xffe6373d)
-val ColorThemeProgressBar = Color(0x33e6373d)
+val ColorTheme = Color(0xff006ac8)
+val ColorThemeHint = Color(0x1100549f)
+val ColorThemeProgressBar = Color(0x1100549f)
 val ColorGray = Color(0xffe3e2e8)
 val ColorDivider = Color(0xffdcdcdc)
 
@@ -32,13 +33,13 @@ val ButtonRoundedCorner = 6.dp
 @Composable
 fun RButton(onClick: () -> Unit, text: String, enable: Boolean = true) {
     Button(
-//        elevation = ButtonDefaults.elevation(
-//            defaultElevation = 0.dp,
-//            pressedElevation = 0.dp,
-//            disabledElevation = 0.dp,
-//            hoveredElevation = 0.dp,
-//            focusedElevation = 0.dp,
-//        ),
+        elevation = ButtonDefaults.elevation(
+            defaultElevation = 0.dp,
+            pressedElevation = 0.dp,
+            disabledElevation = 0.dp,
+            hoveredElevation = 0.dp,
+            focusedElevation = 0.dp,
+        ),
         enabled = enable,
         shape = RoundedCornerShape(ButtonRoundedCorner),
         colors = ButtonDefaults.buttonColors(
