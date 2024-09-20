@@ -1,6 +1,12 @@
 package org.example.project.adb
 
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.example.project.executeADB
+import org.example.project.util.TimeUtil
 
 
 /**
@@ -14,7 +20,6 @@ object AdbExecutor {
     fun exec(adbCommand: String, callback: AdbExecuteCallback) {
         executeADB(adbCommand, object : AdbExecuteCallback {
             override fun onPrint(line: String) {
-                println("exec!!! $line")
                 callback.onPrint(line)
             }
 

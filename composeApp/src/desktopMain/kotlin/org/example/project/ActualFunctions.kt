@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.example.project.adb.AdbExecuteCallback
+import org.example.project.adb.SPACE_HOLDER
 import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.File
@@ -53,8 +54,9 @@ actual fun executeADB(adbCommand: String, callback: AdbExecuteCallback) {
         try {
             // 设置 ADB 命令
             // 启动进程
-            println(adbCommand)
-            val process: Process = ProcessBuilder(adbCommand.split(" ")).start()
+            val adb = adbCommand.split(SPACE_HOLDER)
+            println("execute: $adb")
+            val process: Process = ProcessBuilder(adb).start()
 
             // 读取命令输出
             val reader = process.inputReader()

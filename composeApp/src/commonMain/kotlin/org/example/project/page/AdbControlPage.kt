@@ -89,6 +89,7 @@ import org.example.project.adb.FILE_PATH_HOLDER
 import org.example.project.adb.MCC_HOLDER
 import org.example.project.adb.PACKAGE_NAME_HOLDER
 import org.example.project.adb.SCREEN_COPY
+import org.example.project.adb.SPACE_HOLDER
 import org.example.project.component.ColorGray
 import org.example.project.executeADB
 import org.example.project.formatTime
@@ -198,7 +199,7 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
         ADB_HONOR_GET_MCC -> {
             executeADB(ADB_HONOR_GET_MCC, object : AdbExecuteCallback {
                 override fun onPrint(line: String) {
-                    honorCurrentMcc = if (line == "null") {
+                    honorCurrentMcc = if (line == "null" || line.contains("no devices")) {
                         ""
                     } else {
                         line
@@ -211,7 +212,7 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
         ADB_HONOR_GET_MCC_LEVEL -> {
             executeADB(ADB_HONOR_GET_MCC_LEVEL, object : AdbExecuteCallback {
                 override fun onPrint(line: String) {
-                    honorCurrentMccLevel = if (line == "null") {
+                    honorCurrentMccLevel = if (line == "null" || line.contains("no devices")) {
                         ""
                     } else {
                         line
@@ -224,11 +225,7 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
         ADB_HONOR_GET_MCC_ENABLE_OVERSEA -> {
             executeADB(ADB_HONOR_GET_MCC_ENABLE_OVERSEA, object : AdbExecuteCallback {
                 override fun onPrint(line: String) {
-                    honorCurrentMccOverseaEnable = if (line == "1") {
-                        true
-                    } else {
-                        false
-                    }
+                    honorCurrentMccOverseaEnable = line == "1"
                     println("ADB_HONOR_GET_MCC_ENABLE_OVERSEA $line")
                 }
             })
@@ -365,7 +362,8 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                         .padding(start = 20.dp)
                 ) {
 
-                    val onButtonClick = { adbCommand: String ->
+                    val onButtonClick = { rawCommand: String ->
+                        val adbCommand = rawCommand
                         // require package name
                         if (adbCommand.contains(PACKAGE_NAME_HOLDER)) {
                             var cmd: String = adbCommand
@@ -381,11 +379,15 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                             CoroutineScope(Dispatchers.Default).launch {
                                 val file = FileKit.pickFile(title = "Pick File")
                                 println(file?.path)
-                                file?.let {
-                                    if (!file.path.equals("null")) {
+                                val path = file?.path
+                                path?.let {
+                                    if (path != "null") {
                                         var cmd: String = adbCommand
-                                        if (file.path?.isNotEmpty() == true) {
-                                            cmd = cmd.replace(FILE_PATH_HOLDER, file.path!!)
+                                        if (path.isNotEmpty()) {
+                                            if (path.contains(" ")) {
+                                                path.replace(" ", SPACE_HOLDER)
+                                            }
+                                            cmd = cmd.replace(FILE_PATH_HOLDER, path)
                                             // execute
                                             execADB(cmd)
                                         }
@@ -397,11 +399,12 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                             CoroutineScope(Dispatchers.Default).launch {
                                 val file = FileKit.pickDirectory(title = "Pick Directory")
                                 println(file?.path)
-                                file?.let {
-                                    if (!file.path.equals("null")) {
+                                val path = file?.path
+                                path.let {
+                                    if (!path.equals("null")) {
                                         var cmd: String = adbCommand
-                                        if (file.path?.isNotEmpty() == true) {
-                                            cmd = cmd.replace(DIR_PATH_HOLDER, file.path!!)
+                                        if (path?.isNotEmpty() == true) {
+                                            cmd = cmd.replace(DIR_PATH_HOLDER, path)
                                             // execute
                                             execADB(cmd)
                                         }

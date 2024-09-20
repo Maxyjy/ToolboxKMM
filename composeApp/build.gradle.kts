@@ -71,10 +71,12 @@ kotlin {
             implementation(libs.kotlinx.io.core)
             implementation(libs.filekit.core)
             implementation(libs.filekit.utilities)
+            implementation(libs.kotlinx.datetime)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
+            implementation(compose.desktop.common)
         }
     }
 }

@@ -12,86 +12,111 @@ const val DIR_PATH_HOLDER = "{DIR_NAME_HOLDER}"
 const val PID_HOLDER = "{PID_HOLDER}"
 const val DISPLAY_ID_HOLDER = "{DISPLAY_ID_HOLDER}"
 const val MCC_HOLDER = "{MCC_HOLDER}"
+const val SPACE_HOLDER = "{SPACE_HOLDER}"
 
 // root
-const val ADB_ROOT = "adb root"
-const val ADB_REMOUNT = "adb remount"
+const val ADB_ROOT = "adb${SPACE_HOLDER}root"
+const val ADB_REMOUNT = "adb${SPACE_HOLDER}remount"
 
 // device control
-const val ADB_REBOOT = "adb reboot"
 
-// device info
-const val ADB_DEVICE_LIST = "adb devices"
-const val ADB_DEVICE_BRAND = "adb shell getprop ro.product.brand"
-const val ADB_DEVICE_NAME = "adb shell getprop ro.product.model"
+// ADB commands
+const val ADB_REBOOT = "adb${SPACE_HOLDER}reboot"
 
-// app control
-const val ADB_KILL_APP = "adb shell am force-stop $PACKAGE_NAME_HOLDER"
+// Device info
+const val ADB_DEVICE_LIST = "adb${SPACE_HOLDER}devices"
+const val ADB_DEVICE_BRAND =
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}getprop${SPACE_HOLDER}ro.product.brand"
+const val ADB_DEVICE_NAME =
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}getprop${SPACE_HOLDER}ro.product.model"
+
+// App control
+const val ADB_KILL_APP =
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}am${SPACE_HOLDER}force-stop${SPACE_HOLDER}${PACKAGE_NAME_HOLDER}"
 const val ADB_START_APP =
-    "adb shell monkey -p $PACKAGE_NAME_HOLDER -c android.intent.category.LAUNCHER 1"
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}monkey${SPACE_HOLDER}-p${SPACE_HOLDER}${PACKAGE_NAME_HOLDER}${SPACE_HOLDER}-c${SPACE_HOLDER}android.intent.category.LAUNCHER${SPACE_HOLDER}1"
 
-// app install uninstall
-const val ADB_INSTALL = "adb install $FILE_PATH_HOLDER" // + apk path
-const val ADB_UNINSTALL = "adb uninstall $PACKAGE_NAME_HOLDER" // + package name
+// App install/uninstall
+const val ADB_INSTALL = "adb${SPACE_HOLDER}install${SPACE_HOLDER}${FILE_PATH_HOLDER}" // + apk path
+const val ADB_UNINSTALL =
+    "adb${SPACE_HOLDER}uninstall${SPACE_HOLDER}${PACKAGE_NAME_HOLDER}" // + package name
 
-// package manager
+// Package manager commands
 const val ADB_PRINT_PATH =
-    "adb shell pm list packages -f | grep $PACKAGE_NAME_HOLDER" // + package name
-const val ADB_CLEAR_DATA = "adb shell pm clear $PACKAGE_NAME_HOLDER" // + package name
-const val ADB_THIRD_PARTY_APP = "adb shell pm list packages -3"
-const val ADB_FIND_PID_BY_PACKAGE_NAME = "adb shell pidof $PACKAGE_NAME_HOLDER"
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}pm${SPACE_HOLDER}list${SPACE_HOLDER}packages${SPACE_HOLDER}-f${SPACE_HOLDER}|${SPACE_HOLDER}grep${SPACE_HOLDER}${PACKAGE_NAME_HOLDER}" // + package name
+const val ADB_CLEAR_DATA =
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}pm${SPACE_HOLDER}clear${SPACE_HOLDER}${PACKAGE_NAME_HOLDER}" // + package name
+const val ADB_THIRD_PARTY_APP =
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}pm${SPACE_HOLDER}list${SPACE_HOLDER}packages${SPACE_HOLDER}-3"
+const val ADB_FIND_PID_BY_PACKAGE_NAME =
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}pidof${SPACE_HOLDER}${PACKAGE_NAME_HOLDER}"
 
-//adb shell dumpsys meminfo
-const val ADB_DUMP_MEM_INFO = "adb dumpsys meminfo $PACKAGE_NAME_HOLDER"
-const val ADB_DUMP_SHOW_TOP_ACTIVITY = "adb shell dumpsys activity top | grep ACTIVITY"
+// ADB shell dumpsys commands
+const val ADB_DUMP_MEM_INFO =
+    "adb${SPACE_HOLDER}dumpsys${SPACE_HOLDER}meminfo${SPACE_HOLDER}${PACKAGE_NAME_HOLDER}"
+const val ADB_DUMP_SHOW_TOP_ACTIVITY =
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}dumpsys${SPACE_HOLDER}activity${SPACE_HOLDER}top${SPACE_HOLDER}|${SPACE_HOLDER}grep${SPACE_HOLDER}ACTIVITY"
 
-// screen shot
-const val ADB_FIND_ACTIVE_DISPLAY = "adb shell dumpsys SurfaceFlinger | grep \\(active\\)"
+// Screen shot commands
+const val ADB_FIND_ACTIVE_DISPLAY =
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}dumpsys${SPACE_HOLDER}SurfaceFlinger${SPACE_HOLDER}|${SPACE_HOLDER}grep${SPACE_HOLDER}\\(active\\)"
 const val ADB_SCREEN_SHOT =
-    "adb shell screencap /sdcard/Pictures/Screenshots/screen_shot.png -d $DISPLAY_ID_HOLDER"
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}screencap${SPACE_HOLDER}/sdcard/Pictures/Screenshots/screen_shot.png${SPACE_HOLDER}-d${SPACE_HOLDER}${DISPLAY_ID_HOLDER}"
 const val ADB_SCREEN_START_RECORD =
-    "adb shell screenrecord /sdcard/Pictures/Screenshots/screen_shot.mp4 --d $DISPLAY_ID_HOLDER"
-const val ADB_SCREEN_FIND_RECORD_PID = "adb shell pidof screenrecord"
-const val ADB_SCREEN_STOP_RECORD = "adb shell kill -2 $PID_HOLDER"
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}screenrecord${SPACE_HOLDER}/sdcard/Pictures/Screenshots/screen_record.mp4${SPACE_HOLDER}--d${SPACE_HOLDER}${DISPLAY_ID_HOLDER}"
+const val ADB_SCREEN_FIND_RECORD_PID =
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}pidof${SPACE_HOLDER}screenrecord"
+const val ADB_SCREEN_STOP_RECORD =
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}kill${SPACE_HOLDER}-2${SPACE_HOLDER}${PID_HOLDER}"
 
+// Save screenshot and screen recording commands
 const val ADB_SAVE_SCREEN_SHOT =
-    "adb pull /sdcard/Pictures/Screenshots/screen_shot.png $DIR_PATH_HOLDER"
+    "adb${SPACE_HOLDER}pull${SPACE_HOLDER}/sdcard/Pictures/Screenshots/screen_shot.png${SPACE_HOLDER}${DIR_PATH_HOLDER}"
 const val ADB_SAVE_SCREEN_RECORD =
-    "adb pull /sdcard/Pictures/Screenshots/screen_shot.mp4 $DIR_PATH_HOLDER"
+    "adb${SPACE_HOLDER}pull${SPACE_HOLDER}/sdcard/Pictures/Screenshots/screen_record.mp4${SPACE_HOLDER}${DIR_PATH_HOLDER}"
 
+// Open language change setting command
 const val ADB_OPEN_LANGUAGE_CHANGE_SETTING =
-    "adb shell am start -a android.settings.LOCALE_SETTINGS"
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}am${SPACE_HOLDER}start${SPACE_HOLDER}-a${SPACE_HOLDER}android.settings.LOCALE_SETTINGS"
 
-// honor preinstall apk, Hypercomm apk
-// honor mcc
+// Honor preinstall APK, Hypercomm APK commands
 const val ADB_HONOR_GET_MCC_ENABLE_OVERSEA =
-    "adb shell settings get global redtea_enable_succ_lev" // 开启境外套餐
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}settings${SPACE_HOLDER}get${SPACE_HOLDER}global${SPACE_HOLDER}redtea_enable_succ_lev" // 开启境外套餐
 const val ADB_HONOR_PUT_MCC_ENABLE_OVERSEA =
-    "adb shell settings put global redtea_enable_succ_lev 1" // 开启境外套餐
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}settings${SPACE_HOLDER}put${SPACE_HOLDER}global${SPACE_HOLDER}redtea_enable_succ_lev${SPACE_HOLDER}1" // 开启境外套餐
 const val ADB_HONOR_DELETE_MCC_ENABLE_OVERSEA =
-    "adb shell settings delete system redtea_enable_succ_lev" // 关闭境外套餐？
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}settings${SPACE_HOLDER}delete${SPACE_HOLDER}system${SPACE_HOLDER}redtea_enable_succ_lev" // 关闭境外套餐
 
-const val ADB_HONOR_GET_MCC_LEVEL = "adb shell settings get system redtea_mcc_lev" // 启用 mcc 测试
-const val ADB_HONOR_PUT_MCC_LEVEL = "adb shell settings put system redtea_mcc_lev 2" // 启用 mcc 测试
+// Honor MCC level commands
+const val ADB_HONOR_GET_MCC_LEVEL =
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}settings${SPACE_HOLDER}get${SPACE_HOLDER}system${SPACE_HOLDER}redtea_mcc_lev" // 启用 mcc 测试
+const val ADB_HONOR_PUT_MCC_LEVEL =
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}settings${SPACE_HOLDER}put${SPACE_HOLDER}system${SPACE_HOLDER}redtea_mcc_lev${SPACE_HOLDER}2" // 启用 mcc 测试
 const val ADB_HONOR_DELETE_MCC_LEVEL =
-    "adb shell settings delete system redtea_mcc_lev" // 清除 mcc 测试参数
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}settings${SPACE_HOLDER}delete${SPACE_HOLDER}system${SPACE_HOLDER}redtea_mcc_lev" // 清除 mcc 测试参数
 
+// Honor MCC commands
 const val ADB_HONOR_GET_MCC =
-    "adb shell settings get global redtea_mcc" // + mcc 设置 mcc
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}settings${SPACE_HOLDER}get${SPACE_HOLDER}global${SPACE_HOLDER}redtea_mcc" // + mcc 设置 mcc
 const val ADB_HONOR_PUT_MCC =
-    "adb shell settings put global redtea_mcc $MCC_HOLDER" // + mcc 设置 mcc
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}settings${SPACE_HOLDER}put${SPACE_HOLDER}global${SPACE_HOLDER}redtea_mcc${SPACE_HOLDER}${MCC_HOLDER}" // + mcc 设置 mcc
 
 const val ADB_HONOR_MCC_BROAD_CAST_SEND =
-    "adb shell am broadcast -a com.hihonor.general.vsim.action.VSIM_REG_PLMN_CHANGED --es mcc $MCC_HOLDER"  // + mcc 发送 mcc 广播
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}am${SPACE_HOLDER}broadcast${SPACE_HOLDER}-a${SPACE_HOLDER}com.hihonor.general.vsim.action.VSIM_REG_PLMN_CHANGED${SPACE_HOLDER}--es${SPACE_HOLDER}mcc${SPACE_HOLDER}${MCC_HOLDER}" // + mcc 发送 mcc 广播
 
-// oppo mcc
-const val ADB_OPPO_GET_MCC_1 = "adb shell getprop android.telephony.mcc_change"
-const val ADB_OPPO_PUT_MCC_1 = "adb shell setprop android.telephony.mcc_change $MCC_HOLDER"
 
-const val ADB_OPPO_GET_MCC_2 = "adb shell getprop android.telephony.mcc_change2"
-const val ADB_OPPO_PUT_MCC_2 = "adb shell setprop android.telephony.mcc_change2 $MCC_HOLDER"
+// Oppo MCC commands
+const val ADB_OPPO_GET_MCC_1 =
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}getprop${SPACE_HOLDER}android.telephony.mcc_change"
+const val ADB_OPPO_PUT_MCC_1 =
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}setprop${SPACE_HOLDER}android.telephony.mcc_change${SPACE_HOLDER}${MCC_HOLDER}"
+
+const val ADB_OPPO_GET_MCC_2 =
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}getprop${SPACE_HOLDER}android.telephony.mcc_change2"
+const val ADB_OPPO_PUT_MCC_2 =
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}setprop${SPACE_HOLDER}android.telephony.mcc_change2${SPACE_HOLDER}${MCC_HOLDER}"
 
 const val ADB_OPPO_MCC_BROAD_CAST_SEND =
-    "adb shell am broadcast -a android.telephony.action.mcc_change --es mcc $MCC_HOLDER -n com.redteamobile.roaming/.receiver.MccChangeReceiver"
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}am${SPACE_HOLDER}broadcast${SPACE_HOLDER}-a${SPACE_HOLDER}android.telephony.action.mcc_change${SPACE_HOLDER}--es${SPACE_HOLDER}mcc${SPACE_HOLDER}${MCC_HOLDER}${SPACE_HOLDER}-n${SPACE_HOLDER}com.redteamobile.roaming/.receiver.MccChangeReceiver"
 
 const val SCREEN_COPY = "scrcpy"
