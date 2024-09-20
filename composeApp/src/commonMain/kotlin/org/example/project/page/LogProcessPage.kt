@@ -87,7 +87,7 @@ fun LogProcessPage() {
             },
             onValueChange = {},
             modifier = Modifier.fillMaxWidth()
-                .height(130.dp)
+                .height(100.dp)
                 .padding(0.dp, 0.dp, 0.dp, 10.dp)
                 .border(
                     DimenDivider,

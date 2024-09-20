@@ -1,7 +1,5 @@
 package org.example.project
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,9 +22,9 @@ import org.example.project.page.Base64Page
 import org.example.project.page.JsonFormatPage
 import org.example.project.page.LogProcessPage
 import org.example.project.page.PerformancePage
-import org.example.project.page.RedTeaApkPushPage
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.example.project.component.SideBar
+import org.example.project.page.ApkPushPage
 
 @Composable
 @Preview
@@ -65,7 +63,7 @@ fun App() {
                     }
 
                     3 -> {
-                        RedTeaApkPushPage()
+                        ApkPushPage()
                     }
 
                     4 -> {

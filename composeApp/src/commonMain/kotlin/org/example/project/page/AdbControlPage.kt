@@ -1,10 +1,14 @@
 package org.example.project.page
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.Indication
+import androidx.compose.foundation.IndicationInstance
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,14 +26,17 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -671,7 +678,7 @@ fun AdbExecuteButton(text: String, onClick: () -> Unit) {
         modifier = Modifier.padding(end = 5.dp, bottom = 5.dp)
             .clickable(
                 interactionSource = MutableInteractionSource(),
-                indication = null
+                indication = CustomIndication()
             ) {
                 onClick.invoke()
             }.background(Color.White, RoundedCornerShape(4.dp))
@@ -687,6 +694,39 @@ fun AdbExecuteButton(text: String, onClick: () -> Unit) {
         fontStyle = FontStyle.Normal,
         fontSize = 12.sp,
     )
+}
+
+private class CustomIndication(
+    val pressColor: Color = ColorTheme,
+    val cornerRadius: CornerRadius = CornerRadius(14f, 14f),
+    val alpha: Float = 0.1f,
+) : Indication {
+
+    private inner class DefaultIndicationInstance(
+        private val isPressed: State<Boolean>,
+    ) : IndicationInstance {
+        override fun ContentDrawScope.drawIndication() {
+            drawContent()
+            when {
+                isPressed.value -> {
+                    drawRoundRect(
+                        cornerRadius = cornerRadius,
+                        color = pressColor.copy(
+                            alpha = alpha
+                        ), size = size
+                    )
+                }
+            }
+        }
+    }
+
+    @Composable
+    override fun rememberUpdatedInstance(interactionSource: InteractionSource): IndicationInstance {
+        val isPressed = interactionSource.collectIsPressedAsState()
+        return remember(interactionSource) {
+            DefaultIndicationInstance(isPressed)
+        }
+    }
 }
 
 fun appendOutput(oldText: String, text: String): String {
