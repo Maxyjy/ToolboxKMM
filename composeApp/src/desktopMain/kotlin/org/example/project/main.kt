@@ -17,6 +17,7 @@ fun main() = application {
         title = "Tool",
     ) {
         window.minimumSize = Dimension(850, 700)
+        ApplicationComponent.init()
         App()
     }
 }

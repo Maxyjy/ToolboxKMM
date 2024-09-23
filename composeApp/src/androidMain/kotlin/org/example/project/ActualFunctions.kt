@@ -1,6 +1,13 @@
 package org.example.project
 
+import androidx.datastore.core.DataMigration
+import androidx.datastore.core.DataStore
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
+import androidx.datastore.preferences.core.Preferences
+import kotlinx.coroutines.CoroutineScope
 import org.example.project.adb.AdbExecuteCallback
+import org.example.project.util.SETTINGS_PREFERENCES
+import org.example.project.util.createDataStoreWithDefaults
 import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.File
@@ -8,10 +15,8 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.FileReader
 import java.io.FileWriter
-import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
 import java.util.zip.GZIPInputStream
 
 /**
@@ -121,3 +126,14 @@ actual fun filterOnlyRedTeaProcessId(
     reader.close()
     writer.close()
 }
+
+actual fun dataStorePreferences(
+    corruptionHandler: ReplaceFileCorruptionHandler<Preferences>?,
+    coroutineScope: CoroutineScope,
+    migrations: List<DataMigration<Preferences>>
+): DataStore<Preferences>? = createDataStoreWithDefaults(
+    corruptionHandler = corruptionHandler,
+    migrations = migrations,
+    coroutineScope = coroutineScope,
+    path = { SETTINGS_PREFERENCES }
+)

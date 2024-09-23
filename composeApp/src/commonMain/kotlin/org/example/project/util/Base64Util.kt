@@ -1,6 +1,5 @@
 package org.example.project.util
 
-import kotlinx.io.bytestring.encode
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 

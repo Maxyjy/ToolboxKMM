@@ -56,6 +56,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.example.project.ApplicationComponent
 import org.example.project.component.ColorDivider
 import org.example.project.component.ColorText
 import org.example.project.component.ColorTheme
@@ -101,6 +102,7 @@ import org.example.project.component.ColorGray
 import org.example.project.executeADB
 import org.example.project.formatTime
 import org.example.project.getSystemCurrentTimeMillis
+import org.example.project.util.AppPreferencesKey
 import org.example.project.util.Base64Util
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -118,7 +120,7 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
     var outputText by remember { mutableStateOf("") }
 
     var packageNameInputHint by remember { mutableStateOf(false) }
-    var packageName by remember { mutableStateOf("com.hihonor.redteamobile.roaming") }
+    var packageName by remember { mutableStateOf("") }
 
     var deviceName by remember { mutableStateOf("No Connected Device") }
     var deviceBrand by remember { mutableStateOf("") }
@@ -260,7 +262,15 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
         // 进入组件时执行，lifecycleOwner 改变后重新执行（先回调 onDispose）
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_START) {
-                Base64Util.base64("this is a test string let's test some base 64")
+                CoroutineScope(Dispatchers.Default).launch {
+                    val targetPackageName =
+                        ApplicationComponent.coreComponent.appPreferences.getString(
+                            AppPreferencesKey.TARGET_PACKAGE_NAME
+                        )
+                    if (!targetPackageName.isNullOrEmpty()) {
+                        packageName = targetPackageName
+                    }
+                }
                 CoroutineScope(Dispatchers.Default).launch {
                     while (true) {
                         execADB(ADB_DEVICE_BRAND)
@@ -376,6 +386,12 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                             var cmd: String = adbCommand
                             if (packageName.isNotEmpty()) {
                                 cmd = cmd.replace(PACKAGE_NAME_HOLDER, packageName)
+                                CoroutineScope(Dispatchers.Default).launch {
+                                    ApplicationComponent.coreComponent.appPreferences.putString(
+                                        AppPreferencesKey.TARGET_PACKAGE_NAME,
+                                        packageName
+                                    )
+                                }
                             } else {
                                 packageNameInputHint = true
                             }
