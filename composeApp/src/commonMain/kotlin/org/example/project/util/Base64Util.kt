@@ -1,5 +1,6 @@
 package org.example.project.util
 
+import okio.ByteString.Companion.decodeBase64
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
@@ -12,9 +13,15 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 object Base64Util {
 
     @OptIn(ExperimentalEncodingApi::class)
-    fun base64(string: String): String {
+    fun base64Encode(string: String): String {
         val byteArray = string.encodeToByteArray()
         return Base64.encode(byteArray)
+    }
+
+    @OptIn(ExperimentalEncodingApi::class)
+    fun base64Decode(string: String): String? {
+        val byteArray = string.decodeBase64()
+        return byteArray?.utf8()
     }
 
 }

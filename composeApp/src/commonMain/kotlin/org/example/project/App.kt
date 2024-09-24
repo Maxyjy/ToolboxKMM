@@ -71,15 +71,15 @@ fun App() {
                     }
 
                     2 -> {
-                        ApkInspectPage()
-                    }
-
-                    3 -> {
                         ApkPushPage()
                     }
 
-                    4 -> {
+                    3 -> {
                         DeviceExplorerPage()
+                    }
+
+                    4 -> {
+                        ApkInspectPage()
                     }
 
                     5 -> {

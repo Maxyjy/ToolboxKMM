@@ -41,7 +41,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 @Preview
 fun JsonFormatPage() {
-    var hint by remember { mutableStateOf("Please Input Json Data:") }
+    var hint by remember { mutableStateOf("Please Input Json Data :") }
     var text by remember { mutableStateOf("") }
     Column {
         Text(
@@ -73,14 +73,14 @@ fun JsonFormatPage() {
                         .padding(10.dp),
                     value = text,
                     onValueChange = {
-                        hint = "Please Input Json Data:"
+                        hint = "Please Input Json Data :"
                         text = it
                         if (text.isNotEmpty()) {
                             CoroutineScope(Dispatchers.Default).launch {
                                 delay(300)
                                 try {
                                     text = JsonFormatUtil.format(text)
-                                    hint = "Formatted Result:"
+                                    hint = "Formatted Result :"
                                 } catch (e: Exception) {
                                     println(e.message)
                                     hint = "Error: \n ${e.message}"

@@ -118,6 +118,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Preview
 fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
 
+    var refreshFlag = false
     var outputText by remember { mutableStateOf("") }
 
     var packageNameInputHint by remember { mutableStateOf(false) }
@@ -130,138 +131,147 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
     var startRecordingTime by remember { mutableStateOf(0L) }
     var readableRecordingDuration by remember { mutableStateOf("") }
 
-    var refreshMccImmediately by remember { mutableStateOf(true) }
     var honorCurrentMcc by remember { mutableStateOf("") }
     var honorCurrentMccLevel by remember { mutableStateOf("") }
     var honorCurrentMccOverseaEnable by remember { mutableStateOf(false) }
 
-    fun execADB(adbCommand: String) = when (adbCommand) {
-        ADB_DEVICE_NAME -> {
-            AdbExecutor.findConnectedDeviceName {
-                deviceName = if (it.contains("no devices")) {
-                    "No Connected Device"
-                } else {
-                    it
-                }
-            }
-        }
-
-        ADB_DEVICE_BRAND -> {
-            AdbExecutor.findConnectedDeviceBrand {
-                deviceBrand = if (it.contains("no devices")) {
-                    ""
-                } else {
-                    it
-                }
-            }
-        }
-
-        ADB_SCREEN_SHOT -> {
-            AdbExecutor.screenshot(object : AdbExecuteCallback {
-                override fun onPrint(line: String) {
-                    outputText = appendOutput(outputText, line)
-                }
-
-                override fun onExit(exitCode: Int) {
-                    if (exitCode == 0) {
-                        outputText = appendOutput(outputText, "capture screenshot successful")
+    fun execADB(adbCommand: String) {
+        when (adbCommand) {
+            ADB_DEVICE_NAME -> {
+                AdbExecutor.findConnectedDeviceName {
+                    deviceName = if (it.contains("no devices")) {
+                        "No Connected Device"
+                    } else {
+                        it
                     }
                 }
-            })
-        }
+            }
 
-        ADB_SCREEN_START_RECORD -> {
-            isRecording = true
-            startRecordingTime = getSystemCurrentTimeMillis()
-            readableRecordingDuration = "00:00"
-            CoroutineScope(Dispatchers.Default).launch {
-                while (isRecording) {
-                    delay(1000L)
-                    readableRecordingDuration =
-                        formatTime(getSystemCurrentTimeMillis() - startRecordingTime)
+            ADB_DEVICE_BRAND -> {
+                AdbExecutor.findConnectedDeviceBrand {
+                    deviceBrand = if (it.contains("no devices")) {
+                        ""
+                    } else {
+                        it
+                    }
                 }
             }
-            AdbExecutor.startRecord(object : AdbExecuteCallback {
-                override fun onPrint(line: String) {
-                    outputText = appendOutput(outputText, line)
-                }
 
-                override fun onExit(exitCode: Int) {
-                    if (adbCommand == ADB_SCREEN_FIND_RECORD_PID || adbCommand == ADB_SCREEN_START_RECORD) {
+            ADB_SCREEN_SHOT -> {
+                AdbExecutor.screenshot(object : AdbExecuteCallback {
+                    override fun onPrint(line: String) {
+                        outputText = appendOutput(outputText, line)
+                    }
+
+                    override fun onExit(exitCode: Int) {
+                        if (exitCode == 0) {
+                            outputText = appendOutput(outputText, "capture screenshot successful")
+                        }
+                    }
+                })
+            }
+
+            ADB_SCREEN_START_RECORD -> {
+                isRecording = true
+                startRecordingTime = getSystemCurrentTimeMillis()
+                readableRecordingDuration = "00:00"
+                CoroutineScope(Dispatchers.Default).launch {
+                    while (isRecording) {
+                        delay(1000L)
+                        readableRecordingDuration =
+                            formatTime(getSystemCurrentTimeMillis() - startRecordingTime)
+                    }
+                }
+                AdbExecutor.startRecord(object : AdbExecuteCallback {
+                    override fun onPrint(line: String) {
+                        outputText = appendOutput(outputText, line)
+                    }
+
+                    override fun onExit(exitCode: Int) {
+                        if (adbCommand == ADB_SCREEN_FIND_RECORD_PID || adbCommand == ADB_SCREEN_START_RECORD) {
+                            isRecording = false
+                        }
+                    }
+                })
+            }
+
+            ADB_SCREEN_STOP_RECORD -> {
+                AdbExecutor.stopRecord(object : AdbExecuteCallback {
+                    override fun onPrint(line: String) {
+                        outputText = appendOutput(outputText, line)
+                    }
+
+                    override fun onExit(exitCode: Int) {
                         isRecording = false
                     }
-                }
-            })
-        }
+                })
+            }
 
-        ADB_SCREEN_STOP_RECORD -> {
-            AdbExecutor.stopRecord(object : AdbExecuteCallback {
-                override fun onPrint(line: String) {
-                    outputText = appendOutput(outputText, line)
-                }
-
-                override fun onExit(exitCode: Int) {
-                    isRecording = false
-                }
-            })
-        }
-
-        ADB_HONOR_GET_MCC -> {
-            executeADB(ADB_HONOR_GET_MCC, object : AdbExecuteCallback {
-                override fun onPrint(line: String) {
-                    honorCurrentMcc = if (line == "null" || line.contains("no devices")) {
-                        ""
-                    } else {
-                        line
+            ADB_HONOR_GET_MCC -> {
+                executeADB(ADB_HONOR_GET_MCC, object : AdbExecuteCallback {
+                    override fun onPrint(line: String) {
+                        honorCurrentMcc = if (line == "null" || line.contains("no devices")) {
+                            ""
+                        } else {
+                            line
+                        }
+                        println("ADB_HONOR_GET_MCC $line")
                     }
-                    println("ADB_HONOR_GET_MCC $line")
-                }
-            })
-        }
+                })
+            }
 
-        ADB_HONOR_GET_MCC_LEVEL -> {
-            executeADB(ADB_HONOR_GET_MCC_LEVEL, object : AdbExecuteCallback {
-                override fun onPrint(line: String) {
-                    honorCurrentMccLevel = if (line == "null" || line.contains("no devices")) {
-                        ""
-                    } else {
-                        line
+            ADB_HONOR_GET_MCC_LEVEL -> {
+                executeADB(ADB_HONOR_GET_MCC_LEVEL, object : AdbExecuteCallback {
+                    override fun onPrint(line: String) {
+                        honorCurrentMccLevel = if (line == "null" || line.contains("no devices")) {
+                            ""
+                        } else {
+                            line
+                        }
+                        println("ADB_HONOR_GET_MCC_LEVEL $line")
                     }
-                    println("ADB_HONOR_GET_MCC_LEVEL $line")
-                }
-            })
-        }
+                })
+            }
 
-        ADB_HONOR_GET_MCC_ENABLE_OVERSEA -> {
-            executeADB(ADB_HONOR_GET_MCC_ENABLE_OVERSEA, object : AdbExecuteCallback {
-                override fun onPrint(line: String) {
-                    honorCurrentMccOverseaEnable = line == "1"
-                    println("ADB_HONOR_GET_MCC_ENABLE_OVERSEA $line")
-                }
-            })
-        }
-
-        else -> {
-            AdbExecutor.exec(adbCommand, object : AdbExecuteCallback {
-                override fun onPrint(line: String) {
-                    outputText = appendOutput(outputText, line)
-                }
-
-                override fun onExit(exitCode: Int) {
-                    if (exitCode != 0) {
-                        outputText = appendOutput(outputText, "exit code [$exitCode]")
+            ADB_HONOR_GET_MCC_ENABLE_OVERSEA -> {
+                executeADB(ADB_HONOR_GET_MCC_ENABLE_OVERSEA, object : AdbExecuteCallback {
+                    override fun onPrint(line: String) {
+                        honorCurrentMccOverseaEnable = line == "1"
+                        println("ADB_HONOR_GET_MCC_ENABLE_OVERSEA $line")
                     }
-                    if (adbCommand == ADB_HONOR_PUT_MCC || adbCommand == ADB_HONOR_PUT_MCC_LEVEL || adbCommand == ADB_HONOR_PUT_MCC_ENABLE_OVERSEA) {
-                        refreshMccImmediately = true
+                })
+            }
+
+            else -> {
+                AdbExecutor.exec(adbCommand, object : AdbExecuteCallback {
+                    override fun onPrint(line: String) {
+                        outputText = appendOutput(outputText, line)
                     }
-                }
-            })
+
+                    override fun onExit(exitCode: Int) {
+                        if (exitCode != 0) {
+                            outputText = appendOutput(outputText, "exit code [$exitCode]")
+                        }
+                        if (adbCommand.contains("redtea_mcc")) {
+                            execADB(ADB_HONOR_GET_MCC)
+                            execADB(ADB_HONOR_GET_MCC_LEVEL)
+                            execADB(ADB_HONOR_GET_MCC_ENABLE_OVERSEA)
+                        }
+                    }
+                })
+            }
         }
     }
 
     DisposableEffect(key1 = lifecycleOwner) {
         // 进入组件时执行，lifecycleOwner 改变后重新执行（先回调 onDispose）
         val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                refreshFlag = true
+            }
+            if (event == Lifecycle.Event.ON_PAUSE) {
+                refreshFlag = false
+            }
             if (event == Lifecycle.Event.ON_START) {
                 CoroutineScope(Dispatchers.Default).launch {
                     val targetPackageName =
@@ -274,21 +284,20 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                 }
                 CoroutineScope(Dispatchers.Default).launch {
                     while (true) {
-                        execADB(ADB_DEVICE_BRAND)
-                        execADB(ADB_DEVICE_NAME)
-                        execADB(ADB_HONOR_GET_MCC)
-                        execADB(ADB_HONOR_GET_MCC_LEVEL)
-                        execADB(ADB_HONOR_GET_MCC_ENABLE_OVERSEA)
+                        if (refreshFlag) {
+                            execADB(ADB_DEVICE_BRAND)
+                            execADB(ADB_DEVICE_NAME)
+                            execADB(ADB_HONOR_GET_MCC)
+                            execADB(ADB_HONOR_GET_MCC_LEVEL)
+                            execADB(ADB_HONOR_GET_MCC_ENABLE_OVERSEA)
+                        }
                         delay(5000)
                     }
                 }
                 CoroutineScope(Dispatchers.Default).launch {
-                    if (refreshMccImmediately) {
-                        execADB(ADB_HONOR_GET_MCC)
-                        execADB(ADB_HONOR_GET_MCC_LEVEL)
-                        execADB(ADB_HONOR_GET_MCC_ENABLE_OVERSEA)
-                        refreshMccImmediately = false
-                    }
+                    execADB(ADB_HONOR_GET_MCC)
+                    execADB(ADB_HONOR_GET_MCC_LEVEL)
+                    execADB(ADB_HONOR_GET_MCC_ENABLE_OVERSEA)
                 }
             }
         }

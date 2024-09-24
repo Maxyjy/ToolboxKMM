@@ -9,7 +9,7 @@ package org.example.project.adb
 const val PACKAGE_NAME_HOLDER = "{PACKAGE_NAME_HOLDER}"
 const val FILE_PATH_HOLDER = "{FILE_NAME_HOLDER}"
 const val DIR_PATH_HOLDER = "{DIR_NAME_HOLDER}"
-
+const val ADB_PATH_HOLDER = "{ADB_PATH_HOLDER}"
 const val PID_HOLDER = "{PID_HOLDER}"
 
 const val DISPLAY_ID_HOLDER = "{DISPLAY_ID_HOLDER}"
@@ -29,7 +29,6 @@ const val ADB_ROOT = "adb${SPACE_HOLDER}root"
 const val ADB_REMOUNT = "adb${SPACE_HOLDER}remount"
 
 // device control
-
 // ADB commands
 const val ADB_REBOOT = "adb${SPACE_HOLDER}reboot"
 
@@ -93,6 +92,8 @@ const val ADB_SAVE_SCREEN_RECORD =
 // Open language change setting command
 const val ADB_OPEN_LANGUAGE_CHANGE_SETTING =
     "adb${SPACE_HOLDER}shell${SPACE_HOLDER}am${SPACE_HOLDER}start${SPACE_HOLDER}-a${SPACE_HOLDER}android.settings.LOCALE_SETTINGS"
+
+const val ADB_PATH_LIST_FILE = "adb${SPACE_HOLDER}shell${SPACE_HOLDER}ls${ADB_PATH_HOLDER}"
 
 // Honor MCC level commands
 const val ADB_HONOR_GET_MCC_ENABLE_OVERSEA =

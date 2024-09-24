@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -72,12 +73,47 @@ fun SideBar(onIndexChangeListener: (Int) -> Unit) {
 
         MenuItem(0, "ADB Execute", Res.drawable.icon_adb, onItemClickListener, selectedIndex)
         MenuItem(1, "Log Merge", Res.drawable.icon_log_merge, onItemClickListener, selectedIndex)
-        MenuItem(2, "APK Inspect", Res.drawable.icon_app_inspect, onItemClickListener, selectedIndex)
-        MenuItem(3, "APK Push", Res.drawable.icon_apk, onItemClickListener, selectedIndex)
-        MenuItem(4, "File Explorer", Res.drawable.icon_file_explorer, onItemClickListener, selectedIndex)
-        MenuItem(5, "Performance", Res.drawable.icon_performance, onItemClickListener, selectedIndex)
-        MenuItem(6, "Json Format", Res.drawable.icon_json_format, onItemClickListener, selectedIndex)
+        MenuItem(2, "APK Push", Res.drawable.icon_apk, onItemClickListener, selectedIndex)
+        MenuItem(
+            3,
+            "File Explorer",
+            Res.drawable.icon_file_explorer,
+            onItemClickListener,
+            selectedIndex
+        )
+        MenuItem(
+            4,
+            "APK Inspect",
+            Res.drawable.icon_app_inspect,
+            onItemClickListener,
+            selectedIndex
+        )
+        MenuItem(
+            5,
+            "Performance",
+            Res.drawable.icon_performance,
+            onItemClickListener,
+            selectedIndex
+        )
+        MenuItem(
+            6,
+            "Json Format",
+            Res.drawable.icon_json_format,
+            onItemClickListener,
+            selectedIndex
+        )
         MenuItem(7, "Base64", Res.drawable.icon_base_64, onItemClickListener, selectedIndex)
+
+        Column(verticalArrangement = Arrangement.Bottom, modifier = Modifier.weight(1f).padding(bottom = 5.dp)) {
+            Text(
+                "Developed by\n YangJianyu",
+                fontSize = 6.sp,
+                lineHeight = 8.sp,
+                color = ColorText,
+                fontWeight = FontWeight(300),
+                modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 10.dp)
+            )
+        }
     }
 }
 
