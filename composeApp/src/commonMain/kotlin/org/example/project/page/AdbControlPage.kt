@@ -99,6 +99,7 @@ import org.example.project.adb.PACKAGE_NAME_HOLDER
 import org.example.project.adb.SCREEN_COPY
 import org.example.project.adb.SPACE_HOLDER
 import org.example.project.component.ColorGray
+import org.example.project.component.PressedIndication
 import org.example.project.executeADB
 import org.example.project.formatTime
 import org.example.project.getSystemCurrentTimeMillis
@@ -694,7 +695,7 @@ fun AdbExecuteButton(text: String, onClick: () -> Unit) {
         modifier = Modifier.padding(end = 5.dp, bottom = 5.dp)
             .clickable(
                 interactionSource = MutableInteractionSource(),
-                indication = CustomIndication()
+                indication = PressedIndication()
             ) {
                 onClick.invoke()
             }.background(Color.White, RoundedCornerShape(4.dp))
@@ -710,39 +711,6 @@ fun AdbExecuteButton(text: String, onClick: () -> Unit) {
         fontStyle = FontStyle.Normal,
         fontSize = 12.sp,
     )
-}
-
-private class CustomIndication(
-    val pressColor: Color = ColorTheme,
-    val cornerRadius: CornerRadius = CornerRadius(14f, 14f),
-    val alpha: Float = 0.1f,
-) : Indication {
-
-    private inner class DefaultIndicationInstance(
-        private val isPressed: State<Boolean>,
-    ) : IndicationInstance {
-        override fun ContentDrawScope.drawIndication() {
-            drawContent()
-            when {
-                isPressed.value -> {
-                    drawRoundRect(
-                        cornerRadius = cornerRadius,
-                        color = pressColor.copy(
-                            alpha = alpha
-                        ), size = size
-                    )
-                }
-            }
-        }
-    }
-
-    @Composable
-    override fun rememberUpdatedInstance(interactionSource: InteractionSource): IndicationInstance {
-        val isPressed = interactionSource.collectIsPressedAsState()
-        return remember(interactionSource) {
-            DefaultIndicationInstance(isPressed)
-        }
-    }
 }
 
 fun appendOutput(oldText: String, text: String): String {

@@ -1,14 +1,19 @@
 package org.example.project.page
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -22,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -29,14 +35,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.vinceglb.filekit.compose.PickerResultLauncher
 import io.github.vinceglb.filekit.compose.rememberDirectoryPickerLauncher
+import kotlinproject.composeapp.generated.resources.Res
+import kotlinproject.composeapp.generated.resources.icon_folder
 import org.example.project.component.ColorDivider
 import org.example.project.component.ColorGray
 import org.example.project.component.ColorTheme
 import org.example.project.component.ColorThemeProgressBar
 import org.example.project.component.DimenDivider
+import org.example.project.component.PressedIndication
 import org.example.project.component.RButton
 import org.example.project.component.RoundedCorner
 import org.example.project.util.LogProcessor
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
@@ -79,15 +89,10 @@ fun LogProcessPage() {
             modifier = Modifier.padding(2.dp, 0.dp, 0.dp, 10.dp),
             textAlign = TextAlign.Start,
         )
-        BasicTextField(
-            value = if (path == "null") {
-                ""
-            } else {
-                path
-            },
-            onValueChange = {},
-            modifier = Modifier.fillMaxWidth()
-                .height(100.dp)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth(1f)
+                .height(65.dp)
                 .padding(0.dp, 0.dp, 0.dp, 10.dp)
                 .border(
                     DimenDivider,
@@ -96,8 +101,38 @@ fun LogProcessPage() {
                 ).background(
                     Color.White,
                     RoundedCornerShape(RoundedCorner)
-                ).padding(start = 15.dp, top = 10.dp, end = 15.dp, bottom = 10.dp)
-        )
+                )
+        ) {
+            BasicTextField(
+                value = if (path == "null") {
+                    ""
+                } else {
+                    path
+                },
+                onValueChange = {
+                    path = it
+                },
+                modifier = Modifier.weight(1f)
+                    .padding(start = 15.dp, top = 10.dp, end = 15.dp, bottom = 10.dp)
+            )
+            Column(modifier = Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Center) {
+                Image(
+                    painter = painterResource(Res.drawable.icon_folder),
+                    "pick file",
+                    colorFilter = ColorFilter.tint(
+                        ColorTheme
+                    ),
+                    modifier = Modifier.padding(end = 8.dp)
+                        .height(26.dp)
+                        .width(26.dp).clickable(
+                            interactionSource = MutableInteractionSource(),
+                            indication = PressedIndication(8f)
+                        ) {
+                            launcher.launch()
+                        }.padding(3.dp)
+                )
+            }
+        }
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
             Column(modifier = Modifier.wrapContentHeight(), horizontalAlignment = Alignment.End) {
@@ -107,12 +142,6 @@ fun LogProcessPage() {
                     fontSize = 10.sp,
                     lineHeight = 14.sp,
                     modifier = Modifier.padding(bottom = 3.dp)
-                )
-
-                RButton(
-                    onClick = {
-                        launcher.launch()
-                    }, "Open Directory Picker"
                 )
             }
         }

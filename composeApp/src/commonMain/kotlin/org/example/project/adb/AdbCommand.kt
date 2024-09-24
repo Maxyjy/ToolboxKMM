@@ -9,10 +9,20 @@ package org.example.project.adb
 const val PACKAGE_NAME_HOLDER = "{PACKAGE_NAME_HOLDER}"
 const val FILE_PATH_HOLDER = "{FILE_NAME_HOLDER}"
 const val DIR_PATH_HOLDER = "{DIR_NAME_HOLDER}"
+
 const val PID_HOLDER = "{PID_HOLDER}"
+
 const val DISPLAY_ID_HOLDER = "{DISPLAY_ID_HOLDER}"
+
+const val PUSH_SOURCE_PATH = "{PUSH_SOURCE_PATH}"
+const val PUSH_TARGET_PATH = "{PUSH_TARGET_PATH}"
+
+const val RENAME_OLD_FILE_PATH = "{RENAME_OLD_FILE_PATH}"
+const val RENAME_NEW_FILE_PATH = "{RENAME_NEW_FILE_PATH}"
+
 const val MCC_HOLDER = "{MCC_HOLDER}"
 const val SPACE_HOLDER = "{SPACE_HOLDER}"
+
 
 // root
 const val ADB_ROOT = "adb${SPACE_HOLDER}root"
@@ -51,6 +61,11 @@ const val ADB_THIRD_PARTY_APP =
 const val ADB_FIND_PID_BY_PACKAGE_NAME =
     "adb${SPACE_HOLDER}shell${SPACE_HOLDER}pidof${SPACE_HOLDER}${PACKAGE_NAME_HOLDER}"
 
+const val ADB_PUSH =
+    "adb${SPACE_HOLDER}push${SPACE_HOLDER}${PUSH_SOURCE_PATH}${SPACE_HOLDER}${PUSH_TARGET_PATH}"
+const val ADB_RENAME =
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}mv${SPACE_HOLDER}${RENAME_OLD_FILE_PATH}${SPACE_HOLDER}${RENAME_NEW_FILE_PATH}"
+
 // ADB shell dumpsys commands
 const val ADB_DUMP_MEM_INFO =
     "adb${SPACE_HOLDER}dumpsys${SPACE_HOLDER}meminfo${SPACE_HOLDER}${PACKAGE_NAME_HOLDER}"
@@ -79,7 +94,7 @@ const val ADB_SAVE_SCREEN_RECORD =
 const val ADB_OPEN_LANGUAGE_CHANGE_SETTING =
     "adb${SPACE_HOLDER}shell${SPACE_HOLDER}am${SPACE_HOLDER}start${SPACE_HOLDER}-a${SPACE_HOLDER}android.settings.LOCALE_SETTINGS"
 
-// Honor preinstall APK, Hypercomm APK commands
+// Honor MCC level commands
 const val ADB_HONOR_GET_MCC_ENABLE_OVERSEA =
     "adb${SPACE_HOLDER}shell${SPACE_HOLDER}settings${SPACE_HOLDER}get${SPACE_HOLDER}global${SPACE_HOLDER}redtea_enable_succ_lev" // 开启境外套餐
 const val ADB_HONOR_PUT_MCC_ENABLE_OVERSEA =
@@ -87,7 +102,6 @@ const val ADB_HONOR_PUT_MCC_ENABLE_OVERSEA =
 const val ADB_HONOR_DELETE_MCC_ENABLE_OVERSEA =
     "adb${SPACE_HOLDER}shell${SPACE_HOLDER}settings${SPACE_HOLDER}delete${SPACE_HOLDER}system${SPACE_HOLDER}redtea_enable_succ_lev" // 关闭境外套餐
 
-// Honor MCC level commands
 const val ADB_HONOR_GET_MCC_LEVEL =
     "adb${SPACE_HOLDER}shell${SPACE_HOLDER}settings${SPACE_HOLDER}get${SPACE_HOLDER}system${SPACE_HOLDER}redtea_mcc_lev" // 启用 mcc 测试
 const val ADB_HONOR_PUT_MCC_LEVEL =

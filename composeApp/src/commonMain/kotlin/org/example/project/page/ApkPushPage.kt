@@ -1,11 +1,16 @@
 package org.example.project.page
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -19,8 +24,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -30,15 +37,36 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import io.github.vinceglb.filekit.compose.rememberFilePickerLauncher
+import io.github.vinceglb.filekit.core.PickerType
+import kotlinproject.composeapp.generated.resources.Res
+import kotlinproject.composeapp.generated.resources.icon_check_box_checked
+import kotlinproject.composeapp.generated.resources.icon_check_box_uncheck
+import kotlinproject.composeapp.generated.resources.icon_delete
+import kotlinproject.composeapp.generated.resources.icon_error
+import kotlinproject.composeapp.generated.resources.icon_folder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.example.project.ApplicationComponent
+import org.example.project.adb.ADB_REBOOT
+import org.example.project.adb.AdbExecuteCallback
+import org.example.project.adb.AdbExecutor
+import org.example.project.adb.ApkPushExecutor
+import org.example.project.adb.ApkPushExecutor.HONOR_SUFFIX
+import org.example.project.adb.ApkPushExecutor.HYPER_COMM_APK_NAME
+import org.example.project.adb.ApkPushExecutor.HYPER_COMM_APK_PATH
+import org.example.project.adb.ApkPushExecutor.ROAMING_APK_NAME
+import org.example.project.adb.ApkPushExecutor.ROAMING_APK_PATH
 import org.example.project.component.ColorDivider
+import org.example.project.component.ColorGray
+import org.example.project.component.ColorTheme
 import org.example.project.component.DimenDivider
+import org.example.project.component.PressedIndication
 import org.example.project.component.RButton
 import org.example.project.component.RoundedCorner
 import org.example.project.util.AppPreferencesKey
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
@@ -55,14 +83,48 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
  * @author YangJianyu
  * @date 2024/8/29
  */
+const val ADB_RESULT_UNKNOWN = 0
+const val ADB_RESULT_OK = 1
+const val ADB_RESULT_FAILED = -1
+
 @Composable
 @Preview
 fun ApkPushPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
     var hyperCommPath by remember { mutableStateOf("") }
     var redTeaRoamingPath by remember { mutableStateOf("") }
 
+    var rootResult by remember { mutableStateOf(ADB_RESULT_UNKNOWN) }
+    var remountResult by remember { mutableStateOf(ADB_RESULT_UNKNOWN) }
+
+    var hyperCommRenameResult by remember { mutableStateOf(ADB_RESULT_UNKNOWN) }
+    var redTeaRoamingPushResult by remember { mutableStateOf(ADB_RESULT_UNKNOWN) }
+
+    var redTeaRoamingRenameResult by remember { mutableStateOf(ADB_RESULT_UNKNOWN) }
+    var hyperCommPushResult by remember { mutableStateOf(ADB_RESULT_UNKNOWN) }
+
+    fun getIconByResult(result: Int): DrawableResource {
+        return when (result) {
+            ADB_RESULT_UNKNOWN -> {
+                Res.drawable.icon_check_box_uncheck
+            }
+
+            ADB_RESULT_OK -> {
+                Res.drawable.icon_check_box_checked
+            }
+
+            ADB_RESULT_FAILED -> {
+                Res.drawable.icon_error
+            }
+
+            else -> {
+                Res.drawable.icon_check_box_uncheck
+            }
+        }
+    }
+
     val hyperCommApkPickLauncher = rememberFilePickerLauncher(
-        title = "Pick RedTea Signed HyperComm Apk",
+        title = "RedTea Signed HyperComm Apk",
+        type = PickerType.File(extensions = listOf("apk"))
     ) { file ->
         println(file?.path)
         val path = file?.path
@@ -74,7 +136,8 @@ fun ApkPushPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
     }
 
     val redTeaSignedApkPickLauncher = rememberFilePickerLauncher(
-        title = "Pick RedTea Signed Roaming Apk",
+        title = "RedTea Signed Roaming Apk",
+        type = PickerType.File(extensions = listOf("apk"))
     ) { file ->
         println(file?.path)
         val path = file?.path
@@ -114,7 +177,7 @@ fun ApkPushPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
         }
     }
 
-    Column {
+    Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             "APK File Push",
             fontSize = 30.sp,
@@ -123,22 +186,14 @@ fun ApkPushPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
         )
 
         Text(
-            text = "Pick HyperComm APK File:",
+            text = "HyperComm APK File :",
             fontSize = 14.sp,
             modifier = Modifier.padding(2.dp, 0.dp, 0.dp, 10.dp),
             textAlign = TextAlign.Start,
         )
-        BasicTextField(
-            value = if (hyperCommPath == "null") {
-                ""
-            } else {
-                hyperCommPath
-            },
-            onValueChange = {
-                hyperCommPath = it
-            },
-            modifier = Modifier.fillMaxWidth()
-                .height(80.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(1f)
+                .height(65.dp)
                 .padding(0.dp, 0.dp, 0.dp, 10.dp)
                 .border(
                     DimenDivider,
@@ -147,63 +202,285 @@ fun ApkPushPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
                 ).background(
                     Color.White,
                     RoundedCornerShape(RoundedCorner)
-                ).padding(start = 15.dp, top = 10.dp, end = 15.dp, bottom = 10.dp)
-        )
+                )
+        ) {
+            BasicTextField(
+                value = if (hyperCommPath == "null") {
+                    ""
+                } else {
+                    hyperCommPath
+                },
+                onValueChange = {
+                    hyperCommPath = it
+                },
+                modifier = Modifier.weight(1f)
+                    .padding(start = 15.dp, top = 10.dp, end = 15.dp, bottom = 10.dp)
+            )
+            Column(modifier = Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Center) {
+                Image(
+                    painter = painterResource(Res.drawable.icon_folder),
+                    "pick file",
+                    colorFilter = ColorFilter.tint(
+                        ColorTheme
+                    ),
+                    modifier = Modifier.padding(end = 8.dp)
+                        .height(26.dp)
+                        .width(26.dp).clickable(
+                            interactionSource = MutableInteractionSource(),
+                            indication = PressedIndication(8f)
+                        ) {
+                            hyperCommApkPickLauncher.launch()
+                        }.padding(3.dp)
+                )
+            }
+        }
         Text(
-            text = "Pick RedTeaRoaming APK File:",
+            text = "RedteaRoaming APK File :",
             fontSize = 14.sp,
             modifier = Modifier.padding(2.dp, 0.dp, 0.dp, 10.dp),
             textAlign = TextAlign.Start,
-        )
-        BasicTextField(
-            value = if (redTeaRoamingPath == "null") {
-                ""
-            } else {
-                redTeaRoamingPath
-            },
-            onValueChange = {
-                redTeaRoamingPath = it
-            },
-            modifier = Modifier.fillMaxWidth()
-                .height(80.dp)
-                .padding(0.dp, 0.dp, 0.dp, 10.dp)
-                .border(
-                    DimenDivider,
-                    color = ColorDivider,
-                    shape = RoundedCornerShape(RoundedCorner)
-                ).background(
-                    Color.White,
-                    RoundedCornerShape(RoundedCorner)
-                ).padding(start = 15.dp, top = 10.dp, end = 15.dp, bottom = 10.dp)
         )
 
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            RButton(
-                onClick = {
-                    hyperCommApkPickLauncher.launch()
-                }, "Pick HyperComm APK"
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth(1f)
+                .height(65.dp)
+                .padding(0.dp, 0.dp, 0.dp, 10.dp)
+                .border(
+                    DimenDivider,
+                    color = ColorDivider,
+                    shape = RoundedCornerShape(RoundedCorner)
+                ).background(
+                    Color.White,
+                    RoundedCornerShape(RoundedCorner)
+                )
+        ) {
+            BasicTextField(
+                value = if (redTeaRoamingPath == "null") {
+                    ""
+                } else {
+                    redTeaRoamingPath
+                },
+                onValueChange = {
+                    redTeaRoamingPath = it
+                },
+                modifier = Modifier.weight(1f)
+                    .padding(start = 15.dp, top = 10.dp, end = 15.dp, bottom = 10.dp)
             )
-            Spacer(modifier = Modifier.width(20.dp))
-            RButton(
-                onClick = {
-                    redTeaSignedApkPickLauncher.launch()
-                }, "Pick RedTea Roaming APK"
+            Column(modifier = Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Center) {
+                Image(
+                    painter = painterResource(Res.drawable.icon_folder),
+                    "pick file",
+                    colorFilter = ColorFilter.tint(
+                        ColorTheme
+                    ),
+                    modifier = Modifier.padding(end = 8.dp)
+                        .height(26.dp)
+                        .width(26.dp).clickable(
+                            interactionSource = MutableInteractionSource(),
+                            indication = PressedIndication(8f)
+                        ) {
+                            redTeaSignedApkPickLauncher.launch()
+                        }.padding(3.dp)
+                )
+            }
+        }
+        Column(modifier = Modifier.padding(top = 5.dp)) {
+            Text(
+                text = "Steps :",
+                fontSize = 14.sp,
+                modifier = Modifier.padding(bottom = 5.dp),
+                textAlign = TextAlign.Center,
             )
-            RButton(
-                onClick = {
-                    CoroutineScope(Dispatchers.Default).launch {
-                        ApplicationComponent.coreComponent.appPreferences.putString(
-                            AppPreferencesKey.HYPER_COMM_APK_PATH,
-                            hyperCommPath
-                        )
-                        ApplicationComponent.coreComponent.appPreferences.putString(
-                            AppPreferencesKey.RED_TEA_MOBILE_APK_PATH,
-                            redTeaRoamingPath
-                        )
-                    }
-                }, "Process"
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(getIconByResult(rootResult)),
+                    "Root",
+                    colorFilter = ColorFilter.tint(
+                        ColorTheme
+                    ),
+                    modifier = Modifier
+                        .height(26.dp)
+                        .width(26.dp).padding(end = 5.dp)
+                )
+                Text(
+                    text = "Root",
+                    fontSize = 14.sp,
+                    lineHeight = 14.sp,
+                    modifier = Modifier,
+                    textAlign = TextAlign.Center,
+                )
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(getIconByResult(remountResult)),
+                    "Remount",
+                    colorFilter = ColorFilter.tint(
+                        ColorTheme
+                    ),
+                    modifier = Modifier
+                        .height(26.dp)
+                        .width(26.dp).padding(end = 5.dp)
+                )
+                Text(
+                    text = "Remount",
+                    fontSize = 14.sp,
+                    lineHeight = 14.sp,
+                    modifier = Modifier,
+                    textAlign = TextAlign.Center,
+                )
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(getIconByResult(hyperCommRenameResult)),
+                    "Rename Hypercomm.apk to Hypercomm.apk.honor",
+                    colorFilter = ColorFilter.tint(
+                        ColorTheme
+                    ),
+                    modifier = Modifier
+                        .height(26.dp)
+                        .width(26.dp).padding(end = 5.dp)
+                )
+                Text(
+                    text = "Rename Hypercomm.apk to Hypercomm.apk.honor",
+                    fontSize = 14.sp,
+                    lineHeight = 14.sp,
+                    modifier = Modifier,
+                    textAlign = TextAlign.Center,
+                )
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(getIconByResult(hyperCommPushResult)),
+                    "Push Redtea Signed Hypercomm Apk",
+                    colorFilter = ColorFilter.tint(
+                        ColorTheme
+                    ),
+                    modifier = Modifier
+                        .height(26.dp)
+                        .width(26.dp).padding(end = 5.dp)
+                )
+                Text(
+                    text = "Push Redtea Signed Hypercomm Apk",
+                    fontSize = 14.sp,
+                    lineHeight = 14.sp,
+                    modifier = Modifier,
+                    textAlign = TextAlign.Center,
+                )
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(getIconByResult(redTeaRoamingRenameResult)),
+                    "Rename HnRoamingRed.apk to HnRoamingRed.apk.honor",
+                    colorFilter = ColorFilter.tint(
+                        ColorTheme
+                    ),
+                    modifier = Modifier
+                        .height(26.dp)
+                        .width(26.dp).padding(end = 5.dp)
+                )
+                Text(
+                    text = "Rename HnRoamingRed.apk to HnRoamingRed.apk.honor",
+                    fontSize = 14.sp,
+                    lineHeight = 14.sp,
+                    modifier = Modifier,
+                    textAlign = TextAlign.Center,
+                )
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(getIconByResult(redTeaRoamingPushResult)),
+                    "Push Redtea Signed RedteaRoaming Apk",
+                    colorFilter = ColorFilter.tint(
+                        ColorTheme
+                    ),
+                    modifier = Modifier
+                        .height(26.dp)
+                        .width(26.dp).padding(end = 5.dp)
+                )
+                Text(
+                    text = "Push Redtea Signed RedteaRoaming Apk",
+                    fontSize = 14.sp,
+                    lineHeight = 14.sp,
+                    modifier = Modifier,
+                    textAlign = TextAlign.Center,
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(1f).padding(top = 10.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
+                RButton(onClick = {
+                    AdbExecutor.exec(ADB_REBOOT, object : AdbExecuteCallback {
+                        override fun onPrint(line: String) {
+                        }
+                    })
+                }, "Reboot")
+                Spacer(modifier = Modifier.width(15.dp))
+                RButton(
+                    onClick = {
+                        rootResult = ADB_RESULT_UNKNOWN
+                        remountResult = ADB_RESULT_UNKNOWN
+                        hyperCommRenameResult = ADB_RESULT_UNKNOWN
+                        hyperCommPushResult = ADB_RESULT_UNKNOWN
+                        redTeaRoamingRenameResult = ADB_RESULT_UNKNOWN
+                        redTeaRoamingPushResult = ADB_RESULT_UNKNOWN
+
+                        CoroutineScope(Dispatchers.Default).launch {
+                            ApplicationComponent.coreComponent.appPreferences.putString(
+                                AppPreferencesKey.HYPER_COMM_APK_PATH,
+                                hyperCommPath
+                            )
+                            ApplicationComponent.coreComponent.appPreferences.putString(
+                                AppPreferencesKey.RED_TEA_MOBILE_APK_PATH,
+                                redTeaRoamingPath
+                            )
+
+                            ApkPushExecutor.root { _rootResult ->
+                                rootResult = _rootResult
+                                if (rootResult == ADB_RESULT_OK) {
+                                    ApkPushExecutor.remount { _remountResult ->
+                                        remountResult = _remountResult
+                                        if (remountResult == ADB_RESULT_OK) {
+                                            CoroutineScope(Dispatchers.Default).launch {
+                                                ApkPushExecutor.rename(
+                                                    oldFilePath = HYPER_COMM_APK_PATH + HYPER_COMM_APK_NAME,
+                                                    newFilePath = HYPER_COMM_APK_PATH + HYPER_COMM_APK_NAME + HONOR_SUFFIX
+                                                ) { _renameHyperCommResult ->
+                                                    hyperCommRenameResult = _renameHyperCommResult
+                                                    ApkPushExecutor.push(
+                                                        hyperCommPath,
+                                                        HYPER_COMM_APK_PATH
+                                                    ) { _hyperCommPushResult ->
+                                                        hyperCommPushResult = _hyperCommPushResult
+                                                    }
+                                                }
+                                            }
+                                            CoroutineScope(Dispatchers.Default).launch {
+                                                ApkPushExecutor.rename(
+                                                    oldFilePath = ROAMING_APK_PATH + ROAMING_APK_NAME,
+                                                    newFilePath = ROAMING_APK_PATH + ROAMING_APK_NAME + HONOR_SUFFIX
+                                                ) { _renameRoamingResult ->
+                                                    redTeaRoamingRenameResult = _renameRoamingResult
+                                                    ApkPushExecutor.push(
+                                                        redTeaRoamingPath,
+                                                        ROAMING_APK_PATH
+                                                    ) { _redTeaRoamingPushResult ->
+                                                        redTeaRoamingPushResult =
+                                                            _redTeaRoamingPushResult
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }, "Process"
+                )
+            }
         }
 
     }
+
 }
