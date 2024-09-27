@@ -551,7 +551,11 @@ fun AppPanel(appVersionName: String, onButtonClick: (String) -> Any) {
                 modifier = Modifier.wrapContentWidth().align(Alignment.CenterVertically)
                     .padding(start = 5.dp, end = 5.dp),
                 textAlign = TextAlign.Start,
-                text = "($appVersionName)",
+                text = if (appVersionName.isNotEmpty()) {
+                    "($appVersionName)"
+                } else {
+                    ""
+                },
                 color = Color(0xff767676)
             )
         }
