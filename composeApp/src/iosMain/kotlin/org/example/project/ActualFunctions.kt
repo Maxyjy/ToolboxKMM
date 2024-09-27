@@ -15,6 +15,10 @@ import org.example.project.util.createDataStoreWithDefaults
  * @author YangJianyu
  * @date 2024/8/28
  */
+actual fun getSystemName(): String {
+    return "ios"
+}
+
 actual fun getSystemCurrentTimeMillis(): Long {
     return 0L
 }

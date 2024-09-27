@@ -13,6 +13,8 @@ import org.example.project.adb.AdbExecuteCallback
  * @author YangJianyu
  * @date 2024/8/28
  */
+expect fun getSystemName(): String
+
 expect fun getSystemCurrentTimeMillis(): Long
 
 expect fun formatTime(timeMillis: Long): String

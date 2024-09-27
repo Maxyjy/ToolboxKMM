@@ -25,6 +25,10 @@ import java.util.zip.GZIPInputStream
  * @author YangJianyu
  * @date 2024/8/28
  */
+actual fun getSystemName(): String {
+    return "android"
+}
+
 actual fun getSystemCurrentTimeMillis(): Long {
     return System.currentTimeMillis()
 }
