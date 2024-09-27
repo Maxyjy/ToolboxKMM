@@ -75,20 +75,11 @@ fun SideBar(onIndexChangeListener: (Int) -> Unit) {
         MenuItem(1, "Log Merge", Res.drawable.icon_log_merge, onItemClickListener, selectedIndex)
         MenuItem(2, "APK Push", Res.drawable.icon_apk, onItemClickListener, selectedIndex)
         MenuItem(
-            6,
-            "Json Format",
-            Res.drawable.icon_json_format,
-            onItemClickListener,
-            selectedIndex
-        )
-        MenuItem(7, "Base64", Res.drawable.icon_base_64, onItemClickListener, selectedIndex)
-        MenuItem(
             3,
             "File Explorer",
             Res.drawable.icon_file_explorer,
             onItemClickListener,
             selectedIndex,
-            enabled = false
         )
         MenuItem(
             4,
@@ -96,7 +87,6 @@ fun SideBar(onIndexChangeListener: (Int) -> Unit) {
             Res.drawable.icon_app_inspect,
             onItemClickListener,
             selectedIndex,
-            enabled = false
         )
         MenuItem(
             5,
@@ -104,18 +94,40 @@ fun SideBar(onIndexChangeListener: (Int) -> Unit) {
             Res.drawable.icon_performance,
             onItemClickListener,
             selectedIndex,
-            enabled = false
         )
+        MenuItem(
+            6,
+            "Json Format",
+            Res.drawable.icon_json_format,
+            onItemClickListener,
+            selectedIndex
+        )
+        MenuItem(7, "Base64", Res.drawable.icon_base_64, onItemClickListener, selectedIndex)
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Bottom,
             modifier = Modifier.weight(1f).padding(bottom = 5.dp)
         ) {
             Text(
+                "Toolbox 0.1.0",
+                fontSize = 8.sp,
+                lineHeight = 8.sp,
+                color = ColorDisable,
+                fontWeight = FontWeight(
+                    if (getSystemName().contains("mac", true)) {
+                        300
+                    } else {
+                        500
+                    }
+                ),
+                modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 5.dp)
+            )
+            Text(
                 "Developed by\n@YangJianyu",
                 fontSize = 6.sp,
                 lineHeight = 8.sp,
-                color = ColorText,
+                color = ColorDisable,
                 fontWeight = FontWeight(
                     if (getSystemName().contains("mac", true)) {
                         300
