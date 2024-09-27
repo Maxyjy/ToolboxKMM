@@ -94,20 +94,15 @@ import org.example.project.adb.AdbExecuteCallback
 import org.example.project.adb.AdbExecutor
 import org.example.project.adb.DIR_PATH_HOLDER
 import org.example.project.adb.FILE_PATH_HOLDER
-import org.example.project.adb.FIND_STR
-import org.example.project.adb.GREP
 import org.example.project.adb.MCC_HOLDER
 import org.example.project.adb.PACKAGE_NAME_HOLDER
 import org.example.project.adb.SCREEN_COPY
 import org.example.project.adb.SPACE_HOLDER
-import org.example.project.adb.STRING_MATCH_HOLDER
 import org.example.project.component.ColorGray
-import org.example.project.component.ColorThemeHint
 import org.example.project.component.PressedIndication
 import org.example.project.executeADB
 import org.example.project.formatTime
 import org.example.project.getSystemCurrentTimeMillis
-import org.example.project.getSystemName
 import org.example.project.util.AppPreferencesKey
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -250,12 +245,6 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
             ADB_APP_VERSION -> {
                 if (packageName.isNotEmpty()) {
                     var adb = ADB_APP_VERSION.replace(PACKAGE_NAME_HOLDER, packageName)
-                    if (getSystemName().contains("mac", true)) {
-                        adb = adb.replace(STRING_MATCH_HOLDER, GREP)
-                    }
-                    if (getSystemName().contains("windows", true)) {
-                        adb = adb.replace(STRING_MATCH_HOLDER, FIND_STR)
-                    }
                     AdbExecutor.exec(adb, object : AdbExecuteCallback {
                         override fun onPrint(line: String) {
                             if (line.contains("versionName")) {
@@ -417,14 +406,6 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
 
                     val onButtonClick = { rawCommand: String ->
                         var adbCommand = rawCommand
-                        if (adbCommand.contains(STRING_MATCH_HOLDER)) {
-                            if (getSystemName().contains("mac", true)) {
-                                adbCommand = adbCommand.replace(STRING_MATCH_HOLDER, GREP)
-                            }
-                            if (getSystemName().contains("windows", true)) {
-                                adbCommand = adbCommand.replace(STRING_MATCH_HOLDER, FIND_STR)
-                            }
-                        }
                         // require package name
                         if (adbCommand.contains(PACKAGE_NAME_HOLDER)) {
                             var cmd: String = adbCommand
