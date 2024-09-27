@@ -6,9 +6,6 @@ package org.example.project.adb
  * @author YangJianyu
  * @date 2024/8/30
  */
-const val GREP = "grep"
-const val FIND_STR = "findstr"
-const val STRING_MATCH_HOLDER = "{STRING_MATCH_HOLDER}"
 const val PACKAGE_NAME_HOLDER = "{PACKAGE_NAME_HOLDER}"
 const val FILE_PATH_HOLDER = "{FILE_NAME_HOLDER}"
 const val DIR_PATH_HOLDER = "{DIR_NAME_HOLDER}"
@@ -55,9 +52,9 @@ const val ADB_UNINSTALL =
 
 // Package manager commands
 const val ADB_APP_VERSION =
-    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}dumpsys${SPACE_HOLDER}package${SPACE_HOLDER}${PACKAGE_NAME_HOLDER}${SPACE_HOLDER}|${SPACE_HOLDER}${STRING_MATCH_HOLDER}${SPACE_HOLDER}versionName"
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}dumpsys${SPACE_HOLDER}package${SPACE_HOLDER}${PACKAGE_NAME_HOLDER}${SPACE_HOLDER}|${SPACE_HOLDER}grep${SPACE_HOLDER}versionName"
 const val ADB_PRINT_PATH =
-    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}pm${SPACE_HOLDER}list${SPACE_HOLDER}packages${SPACE_HOLDER}-f${SPACE_HOLDER}|${SPACE_HOLDER}${STRING_MATCH_HOLDER}${SPACE_HOLDER}${PACKAGE_NAME_HOLDER}" // + package name
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}pm${SPACE_HOLDER}list${SPACE_HOLDER}packages${SPACE_HOLDER}-f${SPACE_HOLDER}|${SPACE_HOLDER}grep${SPACE_HOLDER}${PACKAGE_NAME_HOLDER}" // + package name
 const val ADB_CLEAR_DATA =
     "adb${SPACE_HOLDER}shell${SPACE_HOLDER}pm${SPACE_HOLDER}clear${SPACE_HOLDER}${PACKAGE_NAME_HOLDER}" // + package name
 const val ADB_THIRD_PARTY_APP =
@@ -74,11 +71,11 @@ const val ADB_RENAME =
 const val ADB_DUMP_MEM_INFO =
     "adb${SPACE_HOLDER}dumpsys${SPACE_HOLDER}meminfo${SPACE_HOLDER}${PACKAGE_NAME_HOLDER}"
 const val ADB_DUMP_SHOW_TOP_ACTIVITY =
-    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}dumpsys${SPACE_HOLDER}activity${SPACE_HOLDER}top${SPACE_HOLDER}|${SPACE_HOLDER}${STRING_MATCH_HOLDER}${SPACE_HOLDER}ACTIVITY"
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}dumpsys${SPACE_HOLDER}activity${SPACE_HOLDER}top${SPACE_HOLDER}|${SPACE_HOLDER}grep${SPACE_HOLDER}ACTIVITY"
 
 // Screen shot commands
 const val ADB_FIND_ACTIVE_DISPLAY =
-    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}dumpsys${SPACE_HOLDER}SurfaceFlinger${SPACE_HOLDER}|${SPACE_HOLDER}${STRING_MATCH_HOLDER}${SPACE_HOLDER}\\(active\\)"
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}dumpsys${SPACE_HOLDER}SurfaceFlinger${SPACE_HOLDER}|${SPACE_HOLDER}grep${SPACE_HOLDER}\\(active\\)"
 const val ADB_SCREEN_SHOT =
     "adb${SPACE_HOLDER}shell${SPACE_HOLDER}screencap${SPACE_HOLDER}/sdcard/Pictures/Screenshots/screen_shot.png${SPACE_HOLDER}-d${SPACE_HOLDER}${DISPLAY_ID_HOLDER}"
 const val ADB_SCREEN_START_RECORD =
