@@ -28,6 +28,7 @@ val ColorThemeHint = Color(0x1100549f)
 val ColorThemeProgressBar = Color(0x1100549f)
 val ColorGray = Color(0xffe3e2e8)
 val ColorDivider = Color(0xffdcdcdc)
+val ColorDisable = Color(0xffd6d6d6)
 
 val DimenDivider = 0.5.dp
 val RoundedCorner = 8.dp

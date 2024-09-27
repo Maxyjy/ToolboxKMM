@@ -34,17 +34,12 @@ import kotlinproject.composeapp.generated.resources.Res
 import kotlinproject.composeapp.generated.resources.icon_adb
 import kotlinproject.composeapp.generated.resources.icon_apk
 import kotlinproject.composeapp.generated.resources.icon_app_inspect
-import kotlinproject.composeapp.generated.resources.icon_app_logo
 import kotlinproject.composeapp.generated.resources.icon_app_logo_with_background
 import kotlinproject.composeapp.generated.resources.icon_base_64
-import kotlinproject.composeapp.generated.resources.icon_code
-import kotlinproject.composeapp.generated.resources.icon_delete
 import kotlinproject.composeapp.generated.resources.icon_file_explorer
 import kotlinproject.composeapp.generated.resources.icon_json_format
 import kotlinproject.composeapp.generated.resources.icon_log_merge
-import kotlinproject.composeapp.generated.resources.icon_mcc_change
 import kotlinproject.composeapp.generated.resources.icon_performance
-import kotlinproject.composeapp.generated.resources.icon_red_tea
 import org.example.project.getSystemName
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
@@ -80,27 +75,6 @@ fun SideBar(onIndexChangeListener: (Int) -> Unit) {
         MenuItem(1, "Log Merge", Res.drawable.icon_log_merge, onItemClickListener, selectedIndex)
         MenuItem(2, "APK Push", Res.drawable.icon_apk, onItemClickListener, selectedIndex)
         MenuItem(
-            3,
-            "File Explorer",
-            Res.drawable.icon_file_explorer,
-            onItemClickListener,
-            selectedIndex
-        )
-        MenuItem(
-            4,
-            "APK Inspect",
-            Res.drawable.icon_app_inspect,
-            onItemClickListener,
-            selectedIndex
-        )
-        MenuItem(
-            5,
-            "Performance",
-            Res.drawable.icon_performance,
-            onItemClickListener,
-            selectedIndex
-        )
-        MenuItem(
             6,
             "Json Format",
             Res.drawable.icon_json_format,
@@ -108,7 +82,30 @@ fun SideBar(onIndexChangeListener: (Int) -> Unit) {
             selectedIndex
         )
         MenuItem(7, "Base64", Res.drawable.icon_base_64, onItemClickListener, selectedIndex)
-
+        MenuItem(
+            3,
+            "File Explorer",
+            Res.drawable.icon_file_explorer,
+            onItemClickListener,
+            selectedIndex,
+            enabled = false
+        )
+        MenuItem(
+            4,
+            "APK Inspect",
+            Res.drawable.icon_app_inspect,
+            onItemClickListener,
+            selectedIndex,
+            enabled = false
+        )
+        MenuItem(
+            5,
+            "Performance",
+            Res.drawable.icon_performance,
+            onItemClickListener,
+            selectedIndex,
+            enabled = false
+        )
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Bottom,
@@ -138,7 +135,8 @@ fun MenuItem(
     text: String,
     icon: DrawableResource,
     onItemClickListener: (Int) -> Unit,
-    selectedMenuItemIndex: Int
+    selectedMenuItemIndex: Int,
+    enabled: Boolean = true
 ) {
     val isSelect = selectedMenuItemIndex == index
     fun onMenuClick(index: Int) {
@@ -152,7 +150,9 @@ fun MenuItem(
                 interactionSource = MutableInteractionSource(),
                 indication = null,
                 onClick = {
-                    onMenuClick(index)
+                    if (enabled) {
+                        onMenuClick(index)
+                    }
                 },
             ).padding(vertical = 4.dp, horizontal = 4.dp)
             .background(
@@ -163,21 +163,30 @@ fun MenuItem(
                 }, RoundedCornerShape(10)
             ).padding(vertical = 6.dp, horizontal = 0.dp),
     ) {
-        MenuIcon(icon, text, isSelect)
-        MenuText(text, isSelect)
+        MenuIcon(icon, text, isSelect, enabled)
+        MenuText(text, isSelect, enabled)
     }
 }
 
 @Composable
-fun MenuIcon(icon: DrawableResource, contentDesc: String, isSelected: Boolean) {
+fun MenuIcon(
+    icon: DrawableResource,
+    contentDesc: String,
+    isSelected: Boolean,
+    enabled: Boolean = true
+) {
     Image(
         painter = painterResource(icon),
         contentDesc,
         colorFilter = ColorFilter.tint(
-            if (isSelected) {
-                ColorTheme
+            if (enabled) {
+                if (isSelected) {
+                    ColorTheme
+                } else {
+                    ColorText
+                }
             } else {
-                ColorText
+                ColorDisable
             }
         ),
         modifier = Modifier.height(20.dp).width(20.dp),
@@ -185,7 +194,7 @@ fun MenuIcon(icon: DrawableResource, contentDesc: String, isSelected: Boolean) {
 }
 
 @Composable
-fun MenuText(text: String, isSelected: Boolean) {
+fun MenuText(text: String, isSelected: Boolean, enabled: Boolean = true) {
     Text(
         text,
         textAlign = TextAlign.Center,
@@ -193,10 +202,14 @@ fun MenuText(text: String, isSelected: Boolean) {
         lineHeight = TextUnit(15f, TextUnitType.Sp),
         fontSize = 9.sp,
         fontWeight = FontWeight(500),
-        color = if (isSelected) {
-            ColorTheme
+        color = if (enabled) {
+            if (isSelected) {
+                ColorTheme
+            } else {
+                ColorText
+            }
         } else {
-            ColorText
+            ColorDisable
         }
     )
 }
