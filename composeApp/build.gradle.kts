@@ -106,7 +106,7 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.redtea.tools"
+            packageName = "com.yangjy.toolbox"
             packageVersion = "1.0.0"
             macOS{
                 iconFile.set(project.file("src/commonMain/composeResources/files/AppIcon.icns"))

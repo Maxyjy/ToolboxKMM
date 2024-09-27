@@ -110,7 +110,7 @@ fun SideBar(onIndexChangeListener: (Int) -> Unit) {
             modifier = Modifier.weight(1f).padding(bottom = 5.dp)
         ) {
             Text(
-                "Toolbox 0.1.0",
+                "Toolbox 1.0.0",
                 fontSize = 8.sp,
                 lineHeight = 8.sp,
                 color = ColorDisable,
