@@ -1,14 +1,10 @@
 package org.example.project.page
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.Indication
-import androidx.compose.foundation.IndicationInstance
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,17 +22,14 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -57,6 +50,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.example.project.ApplicationComponent
+import org.example.project.adb.ACTION_HOLDER
 import org.example.project.component.ColorDivider
 import org.example.project.component.ColorText
 import org.example.project.component.ColorTheme
@@ -77,9 +71,13 @@ import org.example.project.adb.ADB_HONOR_PUT_MCC_ENABLE_OVERSEA
 import org.example.project.adb.ADB_HONOR_PUT_MCC_LEVEL
 import org.example.project.adb.ADB_INSTALL
 import org.example.project.adb.ADB_KILL_APP
-import org.example.project.adb.ADB_OPEN_LANGUAGE_CHANGE_SETTING
+import org.example.project.adb.ADB_OPEN_APP_DETAIL_SETTING
+import org.example.project.adb.ADB_OPEN_DATA_ROAMING_SETTING
+import org.example.project.adb.ADB_OPEN_DATE_SETTING
+import org.example.project.adb.ADB_OPEN_LANGUAGE_SETTING
+import org.example.project.adb.ADB_OPEN_SETTING
+import org.example.project.adb.ADB_OPEN_WIFI_SETTING
 import org.example.project.adb.ADB_PRINT_PATH
-import org.example.project.adb.ADB_REBOOT
 import org.example.project.adb.ADB_REMOUNT
 import org.example.project.adb.ADB_ROOT
 import org.example.project.adb.ADB_SAVE_SCREEN_RECORD
@@ -108,7 +106,6 @@ import org.example.project.formatTime
 import org.example.project.getSystemCurrentTimeMillis
 import org.example.project.getSystemName
 import org.example.project.util.AppPreferencesKey
-import org.example.project.util.Base64Util
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -494,6 +491,7 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                         )
                     }
                     AppPanel(onButtonClick)
+                    SettingPanel(onButtonClick)
                     DevicePanel(onButtonClick)
                     ScreenPanel(
                         isRecording,
@@ -578,12 +576,39 @@ fun DevicePanel(onButtonClick: (String) -> Any) {
                 onButtonClick.invoke(ADB_ROOT)
             }
         }
+    }
+}
+
+@Composable
+fun SettingPanel(onButtonClick: (String) -> Any) {
+    Column {
+        Text(
+            fontSize = 12.sp,
+            modifier = Modifier.fillMaxWidth().padding(0.dp, 0.dp, 0.dp, 5.dp),
+            textAlign = TextAlign.Start,
+            fontWeight = FontWeight(600),
+            text = "Settings"
+        )
         Row {
-            AdbExecuteButton("Language Change") {
-                onButtonClick.invoke(ADB_OPEN_LANGUAGE_CHANGE_SETTING)
+            AdbExecuteButton("Setting") {
+                onButtonClick.invoke(ADB_OPEN_SETTING)
             }
-            AdbExecuteButton("Reboot") {
-                onButtonClick.invoke(ADB_REBOOT)
+            AdbExecuteButton("Date") {
+                onButtonClick.invoke(ADB_OPEN_DATE_SETTING)
+            }
+            AdbExecuteButton("Language") {
+                onButtonClick.invoke(ADB_OPEN_LANGUAGE_SETTING)
+            }
+        }
+        Row {
+            AdbExecuteButton("Wifi") {
+                onButtonClick.invoke(ADB_OPEN_WIFI_SETTING)
+            }
+            AdbExecuteButton("DataRoaming") {
+                onButtonClick.invoke(ADB_OPEN_DATA_ROAMING_SETTING)
+            }
+            AdbExecuteButton("App") {
+                onButtonClick.invoke(ADB_OPEN_APP_DETAIL_SETTING)
             }
         }
     }
