@@ -50,7 +50,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.example.project.ApplicationComponent
-import org.example.project.adb.ACTION_HOLDER
+import org.example.project.adb.ADB_APP_VERSION
 import org.example.project.component.ColorDivider
 import org.example.project.component.ColorText
 import org.example.project.component.ColorTheme
@@ -71,9 +71,11 @@ import org.example.project.adb.ADB_HONOR_PUT_MCC_ENABLE_OVERSEA
 import org.example.project.adb.ADB_HONOR_PUT_MCC_LEVEL
 import org.example.project.adb.ADB_INSTALL
 import org.example.project.adb.ADB_KILL_APP
+import org.example.project.adb.ADB_OPEN_ACCESSIBILITY_SETTING
 import org.example.project.adb.ADB_OPEN_APP_DETAIL_SETTING
 import org.example.project.adb.ADB_OPEN_DATA_ROAMING_SETTING
 import org.example.project.adb.ADB_OPEN_DATE_SETTING
+import org.example.project.adb.ADB_OPEN_HONOR_SIM_SETTING
 import org.example.project.adb.ADB_OPEN_LANGUAGE_SETTING
 import org.example.project.adb.ADB_OPEN_SETTING
 import org.example.project.adb.ADB_OPEN_WIFI_SETTING
@@ -100,6 +102,7 @@ import org.example.project.adb.SCREEN_COPY
 import org.example.project.adb.SPACE_HOLDER
 import org.example.project.adb.STRING_MATCH_HOLDER
 import org.example.project.component.ColorGray
+import org.example.project.component.ColorThemeHint
 import org.example.project.component.PressedIndication
 import org.example.project.executeADB
 import org.example.project.formatTime
@@ -124,6 +127,7 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
 
     var packageNameInputHint by remember { mutableStateOf(false) }
     var packageName by remember { mutableStateOf("") }
+    var appVersionName by remember { mutableStateOf("") }
 
     var deviceName by remember { mutableStateOf("No Connected Device") }
     var deviceBrand by remember { mutableStateOf("") }
@@ -243,6 +247,25 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                 })
             }
 
+            ADB_APP_VERSION -> {
+                if (packageName.isNotEmpty()) {
+                    var adb = ADB_APP_VERSION.replace(PACKAGE_NAME_HOLDER, packageName)
+                    if (getSystemName().contains("mac", true)) {
+                        adb = adb.replace(STRING_MATCH_HOLDER, GREP)
+                    }
+                    if (getSystemName().contains("windows", true)) {
+                        adb = adb.replace(STRING_MATCH_HOLDER, FIND_STR)
+                    }
+                    AdbExecutor.exec(adb, object : AdbExecuteCallback {
+                        override fun onPrint(line: String) {
+                            if (line.contains("versionName")) {
+                                appVersionName = line.replace("versionName=", "").trim()
+                            }
+                        }
+                    })
+                }
+            }
+
             else -> {
                 AdbExecutor.exec(adbCommand, object : AdbExecuteCallback {
                     override fun onPrint(line: String) {
@@ -281,6 +304,7 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                         )
                     if (!targetPackageName.isNullOrEmpty()) {
                         packageName = targetPackageName
+                        execADB(ADB_APP_VERSION)
                     }
                 }
                 CoroutineScope(Dispatchers.Default).launch {
@@ -291,6 +315,7 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                             execADB(ADB_HONOR_GET_MCC)
                             execADB(ADB_HONOR_GET_MCC_LEVEL)
                             execADB(ADB_HONOR_GET_MCC_ENABLE_OVERSEA)
+                            execADB(ADB_APP_VERSION)
                         }
                         delay(5000)
                     }
@@ -490,7 +515,7 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                                 ).padding(top = 8.dp, bottom = 8.dp, start = 10.dp, end = 10.dp)
                         )
                     }
-                    AppPanel(onButtonClick)
+                    AppPanel(appVersionName, onButtonClick)
                     SettingPanel(onButtonClick)
                     DevicePanel(onButtonClick)
                     ScreenPanel(
@@ -511,15 +536,25 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
 }
 
 @Composable
-fun AppPanel(onButtonClick: (String) -> Any) {
+fun AppPanel(appVersionName: String, onButtonClick: (String) -> Any) {
     Column {
-        Text(
-            fontSize = 12.sp,
-            modifier = Modifier.fillMaxWidth().padding(0.dp, 0.dp, 0.dp, 5.dp),
-            textAlign = TextAlign.Start,
-            text = "App",
-            fontWeight = FontWeight(600)
-        )
+        Row(modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 7.dp)) {
+            Text(
+                fontSize = 12.sp,
+                modifier = Modifier.wrapContentWidth().align(Alignment.CenterVertically),
+                textAlign = TextAlign.Start,
+                text = "App",
+                fontWeight = FontWeight(600)
+            )
+            Text(
+                fontSize = 10.sp,
+                modifier = Modifier.wrapContentWidth().align(Alignment.CenterVertically)
+                    .padding(start = 5.dp, end = 5.dp),
+                textAlign = TextAlign.Start,
+                text = "($appVersionName)",
+                color = Color(0xff767676)
+            )
+        }
         Column {
             Row {
                 AdbExecuteButton("Kill") {
@@ -549,11 +584,6 @@ fun AppPanel(onButtonClick: (String) -> Any) {
                     onButtonClick.invoke(ADB_UNINSTALL)
                 }
             }
-            Row {
-                AdbExecuteButton("Top Activity") {
-                    onButtonClick.invoke(ADB_DUMP_SHOW_TOP_ACTIVITY)
-                }
-            }
         }
     }
 }
@@ -575,6 +605,9 @@ fun DevicePanel(onButtonClick: (String) -> Any) {
             AdbExecuteButton("Root") {
                 onButtonClick.invoke(ADB_ROOT)
             }
+            AdbExecuteButton("Top Activity") {
+                onButtonClick.invoke(ADB_DUMP_SHOW_TOP_ACTIVITY)
+            }
         }
     }
 }
@@ -590,7 +623,7 @@ fun SettingPanel(onButtonClick: (String) -> Any) {
             text = "Settings"
         )
         Row {
-            AdbExecuteButton("Setting") {
+            AdbExecuteButton("Settings") {
                 onButtonClick.invoke(ADB_OPEN_SETTING)
             }
             AdbExecuteButton("Date") {
@@ -601,14 +634,22 @@ fun SettingPanel(onButtonClick: (String) -> Any) {
             }
         }
         Row {
+            AdbExecuteButton("Accessibility") {
+                onButtonClick.invoke(ADB_OPEN_ACCESSIBILITY_SETTING)
+            }
+            AdbExecuteButton("App Detail") {
+                onButtonClick.invoke(ADB_OPEN_APP_DETAIL_SETTING)
+            }
+        }
+        Row {
+            AdbExecuteButton("Sim Manage") {
+                onButtonClick.invoke(ADB_OPEN_HONOR_SIM_SETTING)
+            }
             AdbExecuteButton("Wifi") {
                 onButtonClick.invoke(ADB_OPEN_WIFI_SETTING)
             }
-            AdbExecuteButton("DataRoaming") {
+            AdbExecuteButton("Data Roaming") {
                 onButtonClick.invoke(ADB_OPEN_DATA_ROAMING_SETTING)
-            }
-            AdbExecuteButton("App") {
-                onButtonClick.invoke(ADB_OPEN_APP_DETAIL_SETTING)
             }
         }
     }

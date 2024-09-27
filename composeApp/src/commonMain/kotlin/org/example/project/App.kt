@@ -12,21 +12,10 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import org.example.project.adb.ADB_DEVICE_BRAND
-import org.example.project.adb.ADB_DEVICE_NAME
-import org.example.project.adb.ADB_HONOR_GET_MCC
-import org.example.project.adb.ADB_HONOR_GET_MCC_ENABLE_OVERSEA
-import org.example.project.adb.ADB_HONOR_GET_MCC_LEVEL
 import org.example.project.component.ColorDivider
+import org.example.project.component.ColorPanelBackgroundMac
+import org.example.project.component.ColorPanelBackgroundWin
 import org.example.project.component.DimenDivider
 import org.example.project.page.AdbControlPage
 import org.example.project.page.DeviceExplorerPage
@@ -38,6 +27,7 @@ import org.example.project.page.PerformancePage
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.example.project.component.SideBar
 import org.example.project.page.ApkPushPage
+
 @Composable
 @Preview
 fun App() {
@@ -58,7 +48,13 @@ fun App() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
-                    .background(Color(0xfff7f7f7))
+                    .background(
+                        if (getSystemName().contains("mac", true)) {
+                            ColorPanelBackgroundMac
+                        } else {
+                            ColorPanelBackgroundWin
+                        }
+                    )
                     .padding(20.dp),
             ) {
                 when (rightPanelIndex) {

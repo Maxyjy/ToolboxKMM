@@ -29,6 +29,7 @@ import java.util.zip.GZIPInputStream
  * @date 2024/8/28
  */
 actual fun getSystemName(): String {
+    println("system:"+System.getProperty("os.name"))
     return System.getProperty("os.name")
 }
 

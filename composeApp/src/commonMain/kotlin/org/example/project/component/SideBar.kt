@@ -22,6 +22,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
@@ -33,6 +35,7 @@ import kotlinproject.composeapp.generated.resources.icon_adb
 import kotlinproject.composeapp.generated.resources.icon_apk
 import kotlinproject.composeapp.generated.resources.icon_app_inspect
 import kotlinproject.composeapp.generated.resources.icon_app_logo
+import kotlinproject.composeapp.generated.resources.icon_app_logo_with_background
 import kotlinproject.composeapp.generated.resources.icon_base_64
 import kotlinproject.composeapp.generated.resources.icon_file_explorer
 import kotlinproject.composeapp.generated.resources.icon_json_format
@@ -60,12 +63,11 @@ fun SideBar(onIndexChangeListener: (Int) -> Unit) {
     ) {
         Box(modifier = Modifier.padding(top = 15.dp, bottom = 10.dp)) {
             Image(
-                painter = painterResource(Res.drawable.icon_app_logo),
+                painter = painterResource(Res.drawable.icon_app_logo_with_background),
                 "app logo",
-                modifier = Modifier.height(50.dp).width(50.dp),
+                modifier = Modifier.height(75.dp).width(70.dp),
             )
         }
-
         val onItemClickListener: (Int) -> Unit = { index ->
             selectedIndex = index
             onIndexChangeListener.invoke(index)
@@ -104,7 +106,10 @@ fun SideBar(onIndexChangeListener: (Int) -> Unit) {
         )
         MenuItem(7, "Base64", Res.drawable.icon_base_64, onItemClickListener, selectedIndex)
 
-        Column(verticalArrangement = Arrangement.Bottom, modifier = Modifier.weight(1f).padding(bottom = 5.dp)) {
+        Column(
+            verticalArrangement = Arrangement.Bottom,
+            modifier = Modifier.weight(1f).padding(bottom = 5.dp)
+        ) {
             Text(
                 "Developed by\n YangJianyu",
                 fontSize = 6.sp,
