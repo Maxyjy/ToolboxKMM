@@ -1,9 +1,15 @@
 package org.example.project
 
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import kotlinproject.composeapp.generated.resources.Res
+import kotlinproject.composeapp.generated.resources.icon_app_icns_win
+import kotlinproject.composeapp.generated.resources.icon_app_logo
+import kotlinproject.composeapp.generated.resources.icon_app_logo_with_background
+import org.jetbrains.compose.resources.painterResource
 import java.awt.Dimension
 
 fun main() = application {
@@ -19,6 +25,7 @@ fun main() = application {
         850
     }
     Window(
+        icon = painterResource(Res.drawable.icon_app_icns_win),
         onCloseRequest = ::exitApplication,
         state = rememberWindowState(width = width.dp, height = height.dp),
         title = "Toolbox",
