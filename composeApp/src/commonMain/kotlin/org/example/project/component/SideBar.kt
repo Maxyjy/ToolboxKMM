@@ -37,12 +37,15 @@ import kotlinproject.composeapp.generated.resources.icon_app_inspect
 import kotlinproject.composeapp.generated.resources.icon_app_logo
 import kotlinproject.composeapp.generated.resources.icon_app_logo_with_background
 import kotlinproject.composeapp.generated.resources.icon_base_64
+import kotlinproject.composeapp.generated.resources.icon_code
+import kotlinproject.composeapp.generated.resources.icon_delete
 import kotlinproject.composeapp.generated.resources.icon_file_explorer
 import kotlinproject.composeapp.generated.resources.icon_json_format
 import kotlinproject.composeapp.generated.resources.icon_log_merge
 import kotlinproject.composeapp.generated.resources.icon_mcc_change
 import kotlinproject.composeapp.generated.resources.icon_performance
 import kotlinproject.composeapp.generated.resources.icon_red_tea
+import org.example.project.getSystemName
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -107,15 +110,22 @@ fun SideBar(onIndexChangeListener: (Int) -> Unit) {
         MenuItem(7, "Base64", Res.drawable.icon_base_64, onItemClickListener, selectedIndex)
 
         Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Bottom,
             modifier = Modifier.weight(1f).padding(bottom = 5.dp)
         ) {
             Text(
-                "Developed by\n YangJianyu",
+                "Developed by\n@YangJianyu",
                 fontSize = 6.sp,
                 lineHeight = 8.sp,
                 color = ColorText,
-                fontWeight = FontWeight(300),
+                fontWeight = FontWeight(
+                    if (getSystemName().contains("mac", true)) {
+                        300
+                    } else {
+                        500
+                    }
+                ),
                 modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 10.dp)
             )
         }
