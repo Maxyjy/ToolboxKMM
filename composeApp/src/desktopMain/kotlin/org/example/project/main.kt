@@ -17,7 +17,7 @@ fun main() = application {
         1000
     }
     val height = if (getSystemName().contains("mac", true)) {
-        750
+        800
     } else {
         850
     }
