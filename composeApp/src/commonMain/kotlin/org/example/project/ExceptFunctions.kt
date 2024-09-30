@@ -1,9 +1,5 @@
 package org.example.project
 
-import androidx.datastore.core.DataMigration
-import androidx.datastore.core.DataStore
-import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
-import androidx.datastore.preferences.core.Preferences
 import kotlinx.coroutines.CoroutineScope
 import org.example.project.adb.AdbExecuteCallback
 
@@ -33,9 +29,3 @@ expect fun filterOnlyRedTeaProcessId(
     filteredFilePath: String,
     getProcessIdFunction: (String) -> Int
 )
-
-expect fun dataStorePreferences(
-    corruptionHandler: ReplaceFileCorruptionHandler<Preferences>?,
-    coroutineScope: CoroutineScope,
-    migrations: List<DataMigration<Preferences>>,
-): DataStore<Preferences>?

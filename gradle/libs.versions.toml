@@ -21,6 +21,7 @@ filekit = "0.8.2"
 kotlinxDatetime = "0.6.1"
 datastoreCoreJvm = "1.1.1"
 androidx-data-store = "1.1.0-alpha07" #at the time of this article
+multiplatformSettingsNoArg = "1.2.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -43,6 +44,7 @@ filekit-core = { group = "io.github.vinceglb", name = "filekit-core", version.re
 filekit-utilities = { group = "io.github.vinceglb", name = "filekit-compose", version.ref = "filekit" }
 androidx-datastore-core-jvm = { group = "androidx.datastore", name = "datastore-core-jvm", version.ref = "datastoreCoreJvm" }
 androidx-data-store-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "androidx-data-store" }
+multiplatform-settings-no-arg = { module = "com.russhwolf:multiplatform-settings-no-arg", version.ref = "multiplatformSettingsNoArg" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

@@ -4,10 +4,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
@@ -16,19 +12,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import org.example.project.ApplicationComponent
-import org.example.project.adb.ADB_DEVICE_BRAND
-import org.example.project.adb.ADB_DEVICE_NAME
-import org.example.project.adb.ADB_HONOR_GET_MCC
-import org.example.project.adb.ADB_HONOR_GET_MCC_ENABLE_OVERSEA
-import org.example.project.adb.ADB_HONOR_GET_MCC_LEVEL
 import org.example.project.adb.ADB_ROOT
 import org.example.project.adb.AdbFileExplorer
-import org.example.project.util.AppPreferencesKey
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**

@@ -38,6 +38,8 @@ const val ADB_DEVICE_BRAND =
     "adb${SPACE_HOLDER}shell${SPACE_HOLDER}getprop${SPACE_HOLDER}ro.product.brand"
 const val ADB_DEVICE_NAME =
     "adb${SPACE_HOLDER}shell${SPACE_HOLDER}getprop${SPACE_HOLDER}ro.product.model"
+const val ADB_ANDROID_VERSION =
+    "adb${SPACE_HOLDER}shell${SPACE_HOLDER}getprop${SPACE_HOLDER}ro.build.version.sdk"
 
 // App control
 const val ADB_KILL_APP =

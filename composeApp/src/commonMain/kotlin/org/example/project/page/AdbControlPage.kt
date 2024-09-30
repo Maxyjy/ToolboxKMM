@@ -49,7 +49,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.example.project.ApplicationComponent
+import org.example.project.adb.ADB_ANDROID_VERSION
 import org.example.project.adb.ADB_APP_VERSION
 import org.example.project.component.ColorDivider
 import org.example.project.component.ColorText
@@ -80,6 +80,7 @@ import org.example.project.adb.ADB_OPEN_LANGUAGE_SETTING
 import org.example.project.adb.ADB_OPEN_SETTING
 import org.example.project.adb.ADB_OPEN_WIFI_SETTING
 import org.example.project.adb.ADB_PRINT_PATH
+import org.example.project.adb.ADB_REBOOT
 import org.example.project.adb.ADB_REMOUNT
 import org.example.project.adb.ADB_ROOT
 import org.example.project.adb.ADB_SAVE_SCREEN_RECORD
@@ -104,6 +105,7 @@ import org.example.project.executeADB
 import org.example.project.formatTime
 import org.example.project.getSystemCurrentTimeMillis
 import org.example.project.util.AppPreferencesKey
+import org.example.project.util.SettingsDelegate
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -117,15 +119,17 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Preview
 fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
 
-    var refreshFlag = false
+    var refreshFlag = true
     var outputText by remember { mutableStateOf("") }
 
     var packageNameInputHint by remember { mutableStateOf(false) }
     var packageName by remember { mutableStateOf("") }
     var appVersionName by remember { mutableStateOf("") }
+    var appVersionNameDuration = 0L
 
     var deviceName by remember { mutableStateOf("No Connected Device") }
     var deviceBrand by remember { mutableStateOf("") }
+    var deviceAndroidVersion by remember { mutableStateOf("") }
 
     var isRecording by remember { mutableStateOf(false) }
     var startRecordingTime by remember { mutableStateOf(0L) }
@@ -244,15 +248,76 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
 
             ADB_APP_VERSION -> {
                 if (packageName.isNotEmpty()) {
-                    var adb = ADB_APP_VERSION.replace(PACKAGE_NAME_HOLDER, packageName)
+                    val adb = ADB_APP_VERSION.replace(PACKAGE_NAME_HOLDER, packageName)
                     AdbExecutor.exec(adb, object : AdbExecuteCallback {
                         override fun onPrint(line: String) {
-                            if (line.contains("versionName")) {
-                                appVersionName = line.replace("versionName=", "").trim()
+                            if (getSystemCurrentTimeMillis() - appVersionNameDuration >= 1000L) {
+                                if (line.contains("versionName")) {
+                                    appVersionName = line.replace("versionName=", "").trim()
+                                }
                             }
+                            appVersionNameDuration = getSystemCurrentTimeMillis()
                         }
                     })
                 }
+            }
+
+            ADB_ANDROID_VERSION -> {
+                AdbExecutor.exec(ADB_ANDROID_VERSION, object : AdbExecuteCallback {
+                    override fun onPrint(line: String) {
+                        try {
+                            val version = line.toInt()
+                            deviceAndroidVersion = when (version) {
+                                35 -> {
+                                    "Android 15"
+                                }
+
+                                34 -> {
+                                    "Android 14"
+                                }
+
+                                33 -> {
+                                    "Android 13"
+                                }
+
+                                32 -> {
+                                    "Android 12L"
+                                }
+
+                                31 -> {
+                                    "Android 12"
+                                }
+
+                                30 -> {
+                                    "Android 11"
+                                }
+
+                                29 -> {
+                                    "Android 10"
+                                }
+
+                                28 -> {
+                                    "Android 9"
+                                }
+
+                                27 -> {
+                                    "Android 8.1"
+                                }
+
+                                26 -> {
+                                    "Android 8.0"
+                                }
+
+                                else -> {
+                                    ""
+                                }
+                            }
+                        } catch (e: Exception) {
+                            e.message
+                            deviceAndroidVersion = ""
+                        }
+                    }
+                })
             }
 
             else -> {
@@ -288,9 +353,7 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
             if (event == Lifecycle.Event.ON_START) {
                 CoroutineScope(Dispatchers.Default).launch {
                     val targetPackageName =
-                        ApplicationComponent.coreComponent.appPreferences.getString(
-                            AppPreferencesKey.TARGET_PACKAGE_NAME
-                        )
+                        SettingsDelegate.getString(AppPreferencesKey.TARGET_PACKAGE_NAME)
                     if (!targetPackageName.isNullOrEmpty()) {
                         packageName = targetPackageName
                         execADB(ADB_APP_VERSION)
@@ -305,6 +368,7 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                             execADB(ADB_HONOR_GET_MCC_LEVEL)
                             execADB(ADB_HONOR_GET_MCC_ENABLE_OVERSEA)
                             execADB(ADB_APP_VERSION)
+                            execADB(ADB_ANDROID_VERSION)
                         }
                         delay(5000)
                     }
@@ -339,7 +403,7 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                             fontSize = 14.sp,
                             modifier = Modifier.weight(1f).padding(2.dp, 0.dp, 0.dp, 10.dp),
                             textAlign = TextAlign.Start,
-                            text = "$deviceBrand $deviceName"
+                            text = "$deviceBrand $deviceName ($deviceAndroidVersion)"
                         )
                         Image(
                             painter = painterResource(Res.drawable.icon_scrcpy),
@@ -405,14 +469,14 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                 ) {
 
                     val onButtonClick = { rawCommand: String ->
-                        var adbCommand = rawCommand
+                        val adbCommand = rawCommand
                         // require package name
                         if (adbCommand.contains(PACKAGE_NAME_HOLDER)) {
                             var cmd: String = adbCommand
                             if (packageName.isNotEmpty()) {
                                 cmd = cmd.replace(PACKAGE_NAME_HOLDER, packageName)
                                 CoroutineScope(Dispatchers.Default).launch {
-                                    ApplicationComponent.coreComponent.appPreferences.putString(
+                                    SettingsDelegate.putString(
                                         AppPreferencesKey.TARGET_PACKAGE_NAME,
                                         packageName
                                     )
@@ -590,6 +654,11 @@ fun DevicePanel(onButtonClick: (String) -> Any) {
             AdbExecuteButton("Root") {
                 onButtonClick.invoke(ADB_ROOT)
             }
+            AdbExecuteButton("Reboot") {
+                onButtonClick.invoke(ADB_REBOOT)
+            }
+        }
+        Row {
             AdbExecuteButton("Top Activity") {
                 onButtonClick.invoke(ADB_DUMP_SHOW_TOP_ACTIVITY)
             }

@@ -54,6 +54,7 @@ kotlin {
             implementation(libs.filekit.utilities)
             implementation(libs.kotlinx.datetime)
             implementation(libs.androidx.data.store.core)
+            implementation(libs.multiplatform.settings.no.arg)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)

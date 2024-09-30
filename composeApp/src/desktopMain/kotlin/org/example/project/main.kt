@@ -1,14 +1,11 @@
 package org.example.project
 
-import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import kotlinproject.composeapp.generated.resources.Res
 import kotlinproject.composeapp.generated.resources.icon_app_icns_win
-import kotlinproject.composeapp.generated.resources.icon_app_logo
-import kotlinproject.composeapp.generated.resources.icon_app_logo_with_background
 import org.jetbrains.compose.resources.painterResource
 import java.awt.Dimension
 
@@ -31,7 +28,6 @@ fun main() = application {
         title = "Toolbox",
     ) {
         window.minimumSize = Dimension(width, height)
-        ApplicationComponent.init()
         App()
     }
 }

@@ -6,7 +6,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -41,13 +40,11 @@ import io.github.vinceglb.filekit.core.PickerType
 import kotlinproject.composeapp.generated.resources.Res
 import kotlinproject.composeapp.generated.resources.icon_check_box_checked
 import kotlinproject.composeapp.generated.resources.icon_check_box_uncheck
-import kotlinproject.composeapp.generated.resources.icon_delete
 import kotlinproject.composeapp.generated.resources.icon_error
 import kotlinproject.composeapp.generated.resources.icon_folder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.example.project.ApplicationComponent
 import org.example.project.adb.ADB_REBOOT
 import org.example.project.adb.AdbExecuteCallback
 import org.example.project.adb.AdbExecutor
@@ -58,13 +55,13 @@ import org.example.project.adb.ApkPushExecutor.HYPER_COMM_APK_PATH
 import org.example.project.adb.ApkPushExecutor.ROAMING_APK_NAME
 import org.example.project.adb.ApkPushExecutor.ROAMING_APK_PATH
 import org.example.project.component.ColorDivider
-import org.example.project.component.ColorGray
 import org.example.project.component.ColorTheme
 import org.example.project.component.DimenDivider
 import org.example.project.component.PressedIndication
 import org.example.project.component.RButton
 import org.example.project.component.RoundedCorner
 import org.example.project.util.AppPreferencesKey
+import org.example.project.util.SettingsDelegate
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -154,11 +151,11 @@ fun ApkPushPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
             if (event == Lifecycle.Event.ON_START) {
                 CoroutineScope(Dispatchers.Default).launch {
                     val hyperCommApkPath =
-                        ApplicationComponent.coreComponent.appPreferences.getString(
+                        SettingsDelegate.getString(
                             AppPreferencesKey.HYPER_COMM_APK_PATH
                         )
                     val redTeaRoamingApkPath =
-                        ApplicationComponent.coreComponent.appPreferences.getString(
+                        SettingsDelegate.getString(
                             AppPreferencesKey.RED_TEA_MOBILE_APK_PATH
                         )
                     if (!hyperCommApkPath.isNullOrEmpty()) {
@@ -427,11 +424,11 @@ fun ApkPushPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
                         redTeaRoamingPushResult = ADB_RESULT_UNKNOWN
 
                         CoroutineScope(Dispatchers.Default).launch {
-                            ApplicationComponent.coreComponent.appPreferences.putString(
+                            SettingsDelegate.putString(
                                 AppPreferencesKey.HYPER_COMM_APK_PATH,
                                 hyperCommPath
                             )
-                            ApplicationComponent.coreComponent.appPreferences.putString(
+                            SettingsDelegate.putString(
                                 AppPreferencesKey.RED_TEA_MOBILE_APK_PATH,
                                 redTeaRoamingPath
                             )
