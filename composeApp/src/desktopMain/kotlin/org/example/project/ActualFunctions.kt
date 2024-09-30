@@ -59,7 +59,8 @@ actual fun executeADB(adbCommand: String, callback: AdbExecuteCallback) {
         try {
             // 设置 ADB 命令
             // 启动进程
-            val adb = adbCommand.split(SPACE_HOLDER)
+            val adb = adbCommand.split(SPACE_HOLDER) as ArrayList<String>
+            adb[0] ="${System.getenv("ANDROID_HOME")}/platform-tools/adb"
             println("execute: $adb")
             val process: Process = ProcessBuilder(adb).start()
 
@@ -83,6 +84,7 @@ actual fun executeADB(adbCommand: String, callback: AdbExecuteCallback) {
             println("ADB command executed with exit code: $exitCode")
         } catch (e: Exception) {
             callback.onExit(-1)
+            e.message?.let { callback.onPrint(it) }
             println("cmd exception :" + e.message)
         }
     }
