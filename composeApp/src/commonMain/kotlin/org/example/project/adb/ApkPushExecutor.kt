@@ -80,11 +80,22 @@ object ApkPushExecutor {
 
             override fun onExit(exitCode: Int) {
                 println("Push" + exitCode)
-//                if (exitCode == 0) {
-//                    callback.invoke(ADB_RESULT_OK)
-//                } else {
-//                    callback.invoke(ADB_RESULT_FAILED)
-//                }
+            }
+        })
+    }
+
+    fun remove(filePath: String, callback: (Int) -> Unit) {
+        var adbCommand = ADB_REMOVE
+        adbCommand = adbCommand.replace(REMOVE_TARGET_PATH, filePath)
+        AdbExecutor.exec(adbCommand, object : AdbExecuteCallback {
+            override fun onPrint(line: String) {
+                if (line.contains("No such file or directory")) {
+                    callback.invoke(ADB_RESULT_FAILED)
+                }
+            }
+
+            override fun onExit(exitCode: Int) {
+                println("remove" + exitCode)
             }
         })
     }
