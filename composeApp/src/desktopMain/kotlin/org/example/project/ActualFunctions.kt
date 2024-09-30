@@ -3,9 +3,12 @@ package org.example.project
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.example.project.adb.ANDROID_HOME_PATH_HOLDER
 import org.example.project.adb.AdbExecuteCallback
 import org.example.project.adb.SPACE_HOLDER
+import org.example.project.util.AppPreferencesKey.ANDROID_HOME_PATH
 import org.example.project.util.SETTINGS_PREFERENCES
+import org.example.project.util.SettingsDelegate
 import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.File
@@ -60,7 +63,12 @@ actual fun executeADB(adbCommand: String, callback: AdbExecuteCallback) {
             // 设置 ADB 命令
             // 启动进程
             var adb = adbCommand.replace(SPACE_HOLDER, " ")
-           adb = adb.replace("adb", "${System.getenv("ANDROID_HOME")}/platform-tools/adb")
+            val androidHome = SettingsDelegate.getString(ANDROID_HOME_PATH)
+            if (androidHome?.isEmpty() == true) {
+                callback.onPrint("android path is empty, please relocate android home path")
+                return@launch
+            }
+            adb = adb.replace(ANDROID_HOME_PATH_HOLDER, "${androidHome}/platform-tools/")
 
             println("execute: $adb")
             val process: Process = Runtime.getRuntime().exec(adb)

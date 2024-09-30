@@ -11,7 +11,7 @@ import com.russhwolf.settings.get
  * @date 2024/9/20
  */
 
-object SettingsDelegate  : AppPreferences {
+object SettingsDelegate : AppPreferences {
 
     private val settings by lazy {
         Settings()
@@ -35,6 +35,7 @@ interface AppPreferences {
 }
 
 object AppPreferencesKey {
+    const val ANDROID_HOME_PATH = "ANDROID_HOME_PATH"
     const val TARGET_PACKAGE_NAME = "APP_PREFERENCES_TARGET_PACKAGE_NAME"
     const val HYPER_COMM_APK_PATH = "APP_PREFERENCES_HYPER_COMM_APK_PATH"
     const val RED_TEA_MOBILE_APK_PATH = "APP_PREFERENCES_RED_TEA_MOBILE_APK_PATH"
