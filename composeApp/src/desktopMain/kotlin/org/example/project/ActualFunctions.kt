@@ -24,7 +24,7 @@ import java.util.zip.GZIPInputStream
  * @date 2024/8/28
  */
 actual fun getSystemName(): String {
-    println("system:"+System.getProperty("os.name"))
+    println("system:" + System.getProperty("os.name"))
     return System.getProperty("os.name")
 }
 
@@ -59,10 +59,11 @@ actual fun executeADB(adbCommand: String, callback: AdbExecuteCallback) {
         try {
             // 设置 ADB 命令
             // 启动进程
-            val adb = adbCommand.split(SPACE_HOLDER) as ArrayList<String>
-            adb[0] ="${System.getenv("ANDROID_HOME")}/platform-tools/adb"
+            var adb = adbCommand.replace(SPACE_HOLDER, " ")
+           adb = adb.replace("adb", "${System.getenv("ANDROID_HOME")}/platform-tools/adb")
+
             println("execute: $adb")
-            val process: Process = ProcessBuilder(adb).start()
+            val process: Process = Runtime.getRuntime().exec(adb)
 
             // 读取命令输出
             val reader = process.inputReader()
