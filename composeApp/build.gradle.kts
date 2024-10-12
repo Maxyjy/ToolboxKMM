@@ -115,7 +115,7 @@ compose.desktop {
                 iconFile.set(project.file("src/commonMain/composeResources/files/AppIcon.icns"))
             }
             windows{
-                iconFile.set(project.file("src/commonMain/composeResources/files/icon_logo.png"))
+                iconFile.set(project.file("src/commonMain/composeResources/files/AppIcon.ico"))
             }
 
         }
