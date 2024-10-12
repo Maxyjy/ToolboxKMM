@@ -5,9 +5,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,6 +21,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.DrawerDefaults.scrimColor
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -28,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -36,13 +40,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import io.github.vinceglb.filekit.compose.rememberDirectoryPickerLauncher
 import io.github.vinceglb.filekit.core.FileKit
 import io.github.vinceglb.filekit.core.pickFile
 import kotlinproject.composeapp.generated.resources.Res
 import kotlinproject.composeapp.generated.resources.icon_delete
+import kotlinproject.composeapp.generated.resources.icon_folder
 import kotlinproject.composeapp.generated.resources.icon_scrcpy
 import kotlinproject.composeapp.generated.resources.icon_send
 import kotlinx.coroutines.CoroutineScope
@@ -101,10 +109,13 @@ import org.example.project.adb.SCREEN_COPY
 import org.example.project.adb.SPACE_HOLDER
 import org.example.project.component.ColorGray
 import org.example.project.component.PressedIndication
+import org.example.project.component.RButton
 import org.example.project.executeADB
 import org.example.project.formatTime
 import org.example.project.getSystemCurrentTimeMillis
 import org.example.project.util.AppPreferencesKey
+import org.example.project.util.AppPreferencesKey.ANDROID_HOME_PATH
+import org.example.project.util.AppPreferencesKey.SCRCPY_HOME_PATH
 import org.example.project.util.SettingsDelegate
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -121,6 +132,8 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
 
     var refreshFlag = true
     var outputText by remember { mutableStateOf("") }
+
+    var scrcpyDialogState by remember { mutableStateOf(false) }
 
     var packageNameInputHint by remember { mutableStateOf(false) }
     var packageName by remember { mutableStateOf("") }
@@ -387,6 +400,11 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
     }
 
     Box(modifier = Modifier.fillMaxWidth()) {
+        if (scrcpyDialogState) {
+            ScreenCopyPathDialog() {
+                scrcpyDialogState = false
+            }
+        }
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -415,18 +433,33 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                                 .padding(5.dp)
                                 .height(22.dp)
                                 .width(22.dp).clickable {
-                                    AdbExecutor.exec(SCREEN_COPY, object : AdbExecuteCallback {
-                                        override fun onPrint(line: String) {
-                                        }
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        if (SettingsDelegate.getString(SCRCPY_HOME_PATH)
+                                                .isNullOrEmpty()
+                                        ) {
+                                            scrcpyDialogState = true
+                                        } else {
+                                            AdbExecutor.exec(
+                                                SCREEN_COPY,
+                                                object : AdbExecuteCallback {
+                                                    override fun onPrint(line: String) {
+                                                    }
 
-                                        override fun onExit(exitCode: Int) {
-                                            println("scrcpy$exitCode")
-                                            if (exitCode == -1) {
-                                                outputText =
-                                                    appendOutput(outputText, "scrcpy not install")
-                                            }
+                                                    override fun onExit(exitCode: Int) {
+                                                        println("scrcpy$exitCode")
+                                                        if (exitCode == -1) {
+                                                            CoroutineScope(Dispatchers.Main).launch {
+                                                                outputText =
+                                                                    appendOutput(
+                                                                        outputText,
+                                                                        "scrcpy not install in this path"
+                                                                    )
+                                                            }
+                                                        }
+                                                    }
+                                                })
                                         }
-                                    })
+                                    }
                                 },
                         )
                     }
@@ -861,4 +894,106 @@ fun appendOutput(oldText: String, text: String): String {
         text
     }
     return appendText
+}
+
+@Composable
+fun ScreenCopyPathDialog(dismissListener: (() -> Unit)) {
+    var scrcpyPath by remember { mutableStateOf("") }
+    var scrcpyPathHintAlpha by remember { mutableStateOf(1f) }
+    val launcher = rememberDirectoryPickerLauncher(
+        title = "Pick Scrcpy Path",
+    ) { directory ->
+        CoroutineScope(Dispatchers.Default).launch {
+            println(directory?.path)
+            val path = directory?.path
+            if (path?.isNotEmpty() == true && path != "null") {
+                scrcpyPath = path
+            }
+        }
+    }
+
+    Dialog(
+        onDismissRequest = {},
+    ) {
+        Column(
+            modifier = Modifier.background(Color.White, RoundedCornerShape(RoundedCorner))
+                .padding(top = 10.dp, bottom = 10.dp, start = 15.dp, end = 15.dp)
+        ) {
+            Text(
+                fontSize = 18.sp,
+                modifier = Modifier.fillMaxWidth().padding(0.dp, 5.dp, 0.dp, 5.dp),
+                textAlign = TextAlign.Start,
+                text = "Scrcpy Path Require",
+                lineHeight = 18.sp,
+                color = ColorText,
+                fontWeight = FontWeight(600)
+            )
+            Text(
+                modifier = Modifier.padding(top = 5.dp, bottom = 10.dp),
+                fontSize = 14.sp,
+                textAlign = TextAlign.Start,
+                lineHeight = 22.sp,
+                text = "scrcpy require locate scrcpy install path",
+                color = ColorText
+            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(1f)
+                    .height(50.dp)
+                    .padding(0.dp, 0.dp, 0.dp, 10.dp)
+                    .border(
+                        DimenDivider,
+                        color = ColorDivider,
+                        shape = RoundedCornerShape(RoundedCorner)
+                    ).background(
+                        Color.White,
+                        RoundedCornerShape(RoundedCorner)
+                    )
+            ) {
+                BasicTextField(
+                    scrcpyPath,
+                    onValueChange = {
+                        scrcpyPath = it
+                        scrcpyPathHintAlpha = if (scrcpyPath.isNotEmpty()) {
+                            0f
+                        } else {
+                            1f
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                        .padding(top = 8.dp, bottom = 8.dp, start = 10.dp, end = 10.dp)
+                )
+                Image(
+                    painter = painterResource(Res.drawable.icon_folder),
+                    "pick file",
+                    colorFilter = ColorFilter.tint(
+                        ColorTheme
+                    ),
+                    modifier = Modifier.padding(end = 8.dp)
+                        .height(26.dp)
+                        .width(26.dp).clickable(
+                            interactionSource = MutableInteractionSource(),
+                            indication = PressedIndication(8f)
+                        ) {
+                            launcher.launch()
+                        }.padding(3.dp)
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
+                RButton(onClick = { dismissListener.invoke() }, "Not Now")
+                Spacer(modifier = Modifier.width(15.dp))
+                RButton(onClick = {
+                    if (scrcpyPath.isNotEmpty()) {
+                        dismissListener.invoke()
+                        CoroutineScope(Dispatchers.Default).launch {
+                            SettingsDelegate.putString(SCRCPY_HOME_PATH, scrcpyPath)
+                        }
+                    }
+                }, "Confirm")
+            }
+        }
+    }
 }

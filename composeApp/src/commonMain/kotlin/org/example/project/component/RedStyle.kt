@@ -12,6 +12,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 /**
  *
@@ -23,9 +24,9 @@ val ColorPanelBackgroundMac = Color(0xfff7f7f7)
 val ColorPanelBackgroundWin = Color(0xfffffff)
 
 val ColorText = Color(0xe6000000)
-val ColorTheme = Color(0xff006ac8)
-val ColorThemeHint = Color(0x1100549f)
-val ColorThemeProgressBar = Color(0x1100549f)
+val ColorTheme = Color(0xffdb5555)
+val ColorThemeHint = Color(0x11fc9494)
+val ColorThemeProgressBar = Color(0x11fc9494)
 val ColorGray = Color(0xffe3e2e8)
 val ColorDivider = Color(0xffdcdcdc)
 val ColorDisable = Color(0xffbfbfbf)
@@ -60,8 +61,10 @@ fun RButton(onClick: () -> Unit, text: String, enable: Boolean = true) {
 @Composable
 fun RText(text: String) {
     Text(
-        fontWeight = FontWeight(500),
+        fontWeight = FontWeight(400),
         fontStyle = FontStyle.Normal,
+        letterSpacing = 0.5.sp,
+        fontFamily = FontFamily.Default,
         text = text,
     )
 }

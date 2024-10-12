@@ -34,10 +34,13 @@ import kotlinproject.composeapp.generated.resources.Res
 import kotlinproject.composeapp.generated.resources.icon_adb
 import kotlinproject.composeapp.generated.resources.icon_apk
 import kotlinproject.composeapp.generated.resources.icon_app_inspect
+import kotlinproject.composeapp.generated.resources.icon_app_logo
 import kotlinproject.composeapp.generated.resources.icon_app_logo_with_background
 import kotlinproject.composeapp.generated.resources.icon_base_64
 import kotlinproject.composeapp.generated.resources.icon_file_explorer
+import kotlinproject.composeapp.generated.resources.icon_folder
 import kotlinproject.composeapp.generated.resources.icon_json_format
+import kotlinproject.composeapp.generated.resources.icon_kotlin
 import kotlinproject.composeapp.generated.resources.icon_log_merge
 import kotlinproject.composeapp.generated.resources.icon_performance
 import org.example.project.getSystemName
@@ -59,16 +62,22 @@ fun SideBar(onIndexChangeListener: (Int) -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Box(modifier = Modifier.padding(top = 15.dp, bottom = 10.dp)) {
-            Image(
-                painter = painterResource(Res.drawable.icon_app_logo_with_background),
-                "app logo",
-                modifier = Modifier.height(75.dp).width(70.dp),
-            )
-        }
         val onItemClickListener: (Int) -> Unit = { index ->
             selectedIndex = index
             onIndexChangeListener.invoke(index)
+        }
+
+        Box(modifier = Modifier.padding(top = 15.dp, bottom = 10.dp).clickable(
+            interactionSource = MutableInteractionSource(),
+            indication = null
+        ) {
+            onItemClickListener.invoke(8)
+        }) {
+            Image(
+                painter = painterResource(Res.drawable.icon_app_logo),
+                "app logo",
+                modifier = Modifier.height(50.dp).width(50.dp),
+            )
         }
 
         MenuItem(0, "ADB Execute", Res.drawable.icon_adb, onItemClickListener, selectedIndex)
@@ -80,6 +89,7 @@ fun SideBar(onIndexChangeListener: (Int) -> Unit) {
             Res.drawable.icon_file_explorer,
             onItemClickListener,
             selectedIndex,
+            enabled = false,
         )
         MenuItem(
             4,
@@ -87,6 +97,7 @@ fun SideBar(onIndexChangeListener: (Int) -> Unit) {
             Res.drawable.icon_app_inspect,
             onItemClickListener,
             selectedIndex,
+            enabled = false,
         )
         MenuItem(
             5,
@@ -94,6 +105,7 @@ fun SideBar(onIndexChangeListener: (Int) -> Unit) {
             Res.drawable.icon_performance,
             onItemClickListener,
             selectedIndex,
+            enabled = false,
         )
         MenuItem(
             6,
@@ -110,7 +122,7 @@ fun SideBar(onIndexChangeListener: (Int) -> Unit) {
             modifier = Modifier.weight(1f).padding(bottom = 5.dp)
         ) {
             Text(
-                "Toolbox 1.0.0",
+                "Efficient ADB",
                 fontSize = 8.sp,
                 lineHeight = 8.sp,
                 color = ColorDisable,

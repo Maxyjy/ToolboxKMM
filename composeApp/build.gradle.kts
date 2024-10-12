@@ -18,9 +18,9 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     jvm("desktop")
-    
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -31,10 +31,10 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     sourceSets {
         val desktopMain by getting
-        
+
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
@@ -107,11 +107,14 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "ToolBox"
+            packageName = "Efficient ADB"
             packageVersion = "1.0.0"
-            macOS{
+            description = "Efficient ADB"
+            macOS {
+                dockName = "Efficient ADB"
                 iconFile.set(project.file("src/commonMain/composeResources/files/AppIcon.icns"))
             }
+
         }
     }
 }

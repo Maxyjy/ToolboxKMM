@@ -1,7 +1,10 @@
 package org.example.project
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -18,9 +22,11 @@ import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -32,6 +38,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import io.github.vinceglb.filekit.compose.rememberDirectoryPickerLauncher
+import kotlinproject.composeapp.generated.resources.Res
+import kotlinproject.composeapp.generated.resources.icon_folder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -50,6 +58,7 @@ import org.example.project.component.ColorPanelBackgroundWin
 import org.example.project.component.ColorText
 import org.example.project.component.ColorTheme
 import org.example.project.component.DimenDivider
+import org.example.project.component.PressedIndication
 import org.example.project.component.RButton
 import org.example.project.component.RoundedCorner
 import org.example.project.page.AdbControlPage
@@ -62,9 +71,10 @@ import org.example.project.page.PerformancePage
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.example.project.component.SideBar
 import org.example.project.page.ApkPushPage
-import org.example.project.util.AppPreferencesKey
+import org.example.project.page.SettingsPage
 import org.example.project.util.AppPreferencesKey.ANDROID_HOME_PATH
 import org.example.project.util.SettingsDelegate
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 @Preview
@@ -119,7 +129,7 @@ fun App(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
                         fontSize = 18.sp,
                         modifier = Modifier.fillMaxWidth().padding(0.dp, 5.dp, 0.dp, 5.dp),
                         textAlign = TextAlign.Start,
-                        text = "System Environment Require",
+                        text = "Adb Tool Path Require",
                         lineHeight = 18.sp,
                         color = ColorText,
                         fontWeight = FontWeight(600)
@@ -129,50 +139,73 @@ fun App(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
                         fontSize = 14.sp,
                         textAlign = TextAlign.Start,
                         lineHeight = 22.sp,
-                        text = "adb tools require locate android home path of system environment, you can use command line \"echo \$ANDROID_HOME\" in terminal to find path",
+                        text = "adb tools require locate android home path of system environment",
                         color = ColorText
                     )
-                    Box {
-                        BasicTextField(
-                            androidHomePath,
-                            onValueChange = {
-                                androidHomePath = it
-                                androidHomePathHintAlpha = if (androidHomePath.isNotEmpty()) {
-                                    0f
-                                } else {
-                                    1f
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth().wrapContentHeight()
-                                .border(
-                                    DimenDivider,
-                                    color = ColorDivider,
-                                    shape = RoundedCornerShape(RoundedCorner)
-                                )
-                                .background(
-                                    Color.White,
-                                    RoundedCornerShape(RoundedCorner)
-                                ).padding(top = 8.dp, bottom = 8.dp, start = 10.dp, end = 10.dp)
-                        )
-                        Text(
-                            modifier = Modifier.padding(
-                                top = 8.dp,
-                                bottom = 8.dp,
-                                start = 10.dp,
-                                end = 10.dp
-                            ).alpha(androidHomePathHintAlpha),
-                            fontSize = 12.sp,
-                            textAlign = TextAlign.Center,
-                            lineHeight = 6.sp,
-                            text = "e.g. /Users/max/Library/Android/sdk",
-                            color = ColorGray
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth(1f)
+                            .height(50.dp)
+                            .padding(0.dp, 0.dp, 0.dp, 10.dp)
+                            .border(
+                                DimenDivider,
+                                color = ColorDivider,
+                                shape = RoundedCornerShape(RoundedCorner)
+                            ).background(
+                                Color.White,
+                                RoundedCornerShape(RoundedCorner)
+                            )
+                    ) {
+                        Box(modifier = Modifier.weight(1f)) {
+                            BasicTextField(
+                                androidHomePath,
+                                onValueChange = {
+                                    androidHomePath = it
+                                    androidHomePathHintAlpha = if (androidHomePath.isNotEmpty()) {
+                                        0f
+                                    } else {
+                                        1f
+                                    }
+                                },
+                                modifier = Modifier
+                                    .padding(top = 8.dp, bottom = 8.dp, start = 10.dp, end = 10.dp)
+                            )
+                            Text(
+                                modifier = Modifier.padding(
+                                    top = 8.dp,
+                                    bottom = 8.dp,
+                                    start = 10.dp,
+                                    end = 10.dp
+                                ).alpha(androidHomePathHintAlpha),
+                                fontSize = 12.sp,
+                                textAlign = TextAlign.Center,
+                                lineHeight = 6.sp,
+                                text = "e.g. /../Android/sdk",
+                                color = ColorGray
+                            )
+                        }
+                        Image(
+                            painter = painterResource(Res.drawable.icon_folder),
+                            "pick file",
+                            colorFilter = ColorFilter.tint(
+                                ColorTheme
+                            ),
+                            modifier = Modifier.padding(end = 8.dp)
+                                .height(26.dp)
+                                .width(26.dp).clickable(
+                                    interactionSource = MutableInteractionSource(),
+                                    indication = PressedIndication(8f)
+                                ) {
+                                    launcher.launch()
+                                }.padding(3.dp)
                         )
                     }
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
                         horizontalArrangement = Arrangement.End
                     ) {
-                        RButton(onClick = { launcher.launch() }, "Locate")
+                        RButton(onClick = { dialogState = false }, "Not Now")
                         Spacer(modifier = Modifier.width(15.dp))
                         RButton(onClick = {
                             if (androidHomePath.isNotEmpty()) {
@@ -241,6 +274,9 @@ fun App(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
 
                     7 -> {
                         Base64Page()
+                    }
+                    8->{
+                        SettingsPage()
                     }
                 }
             }

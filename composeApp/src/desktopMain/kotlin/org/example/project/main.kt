@@ -25,7 +25,7 @@ fun main() = application {
         icon = painterResource(Res.drawable.icon_app_icns_win),
         onCloseRequest = ::exitApplication,
         state = rememberWindowState(width = width.dp, height = height.dp),
-        title = "Toolbox",
+        title = "Efficient ADB",
     ) {
         window.minimumSize = Dimension(width, height)
         App()
