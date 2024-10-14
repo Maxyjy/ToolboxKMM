@@ -99,12 +99,14 @@ import org.example.project.adb.ADB_SCREEN_FIND_RECORD_PID
 import org.example.project.adb.ADB_SCREEN_STOP_RECORD
 import org.example.project.adb.ADB_START_APP
 import org.example.project.adb.ADB_UNINSTALL
+import org.example.project.adb.ANDROID_HOME_PATH_HOLDER
 import org.example.project.adb.AdbExecuteCallback
 import org.example.project.adb.AdbExecutor
 import org.example.project.adb.DIR_PATH_HOLDER
 import org.example.project.adb.FILE_PATH_HOLDER
 import org.example.project.adb.MCC_HOLDER
 import org.example.project.adb.PACKAGE_NAME_HOLDER
+import org.example.project.adb.SCRCPY_PATH_HOLDER
 import org.example.project.adb.SCREEN_COPY
 import org.example.project.adb.SPACE_HOLDER
 import org.example.project.component.ColorGray
@@ -429,6 +431,7 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                             colorFilter = ColorFilter.tint(
                                 ColorText
                             ),
+                            alpha = 0f,
                             modifier = Modifier.align(Alignment.CenterVertically)
                                 .padding(5.dp)
                                 .height(22.dp)
@@ -439,10 +442,27 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                                         ) {
                                             scrcpyDialogState = true
                                         } else {
+                                            var cmd = SCREEN_COPY.replace(
+                                                SCRCPY_PATH_HOLDER,
+                                                SettingsDelegate.getString(SCRCPY_HOME_PATH)
+                                                    .toString()
+                                            )
+                                            cmd = cmd.replace(
+                                                ANDROID_HOME_PATH_HOLDER,
+                                                SettingsDelegate.getString(ANDROID_HOME_PATH)
+                                                    .toString()
+                                            )
                                             AdbExecutor.exec(
-                                                SCREEN_COPY,
+                                                cmd,
                                                 object : AdbExecuteCallback {
                                                     override fun onPrint(line: String) {
+                                                        CoroutineScope(Dispatchers.Main).launch {
+                                                            outputText =
+                                                                appendOutput(
+                                                                    outputText,
+                                                                    line
+                                                                )
+                                                        }
                                                     }
 
                                                     override fun onExit(exitCode: Int) {
@@ -452,7 +472,7 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                                                                 outputText =
                                                                     appendOutput(
                                                                         outputText,
-                                                                        "scrcpy not install in this path"
+                                                                        "scrcpy not install or error"
                                                                     )
                                                             }
                                                         }
@@ -832,8 +852,11 @@ fun MccPanel(
                 modifier = Modifier.align(Alignment.CenterEnd).padding(end = 5.dp)
                     .height(20.dp)
                     .width(20.dp).clickable {
-                        onButtonClick.invoke(ADB_HONOR_PUT_MCC.replace(MCC_HOLDER, mcc))
-                        onButtonClick.invoke(ADB_HONOR_MCC_BROAD_CAST_SEND.replace(MCC_HOLDER, mcc))
+                        CoroutineScope(Dispatchers.Main).launch {
+                            onButtonClick.invoke(ADB_HONOR_PUT_MCC.replace(MCC_HOLDER, mcc))
+                            delay(500L)
+                            onButtonClick.invoke(ADB_HONOR_MCC_BROAD_CAST_SEND.replace(MCC_HOLDER, mcc))
+                        }
                     },
             )
         }

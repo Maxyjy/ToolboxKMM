@@ -108,7 +108,8 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Efficient ADB"
-            packageVersion = "1.0.0"
+            version = 110
+            packageVersion = "1.1.0"
             description = "Efficient ADB"
             macOS {
                 dockName = "Efficient ADB"

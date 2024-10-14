@@ -7,6 +7,8 @@ package org.example.project.adb
  * @date 2024/8/30
  */
 const val ANDROID_HOME_PATH_HOLDER = "{ANDROID_HOME_PATH_HOLDER}"
+const val SCRCPY_PATH_HOLDER = "{SCRCPY_PATH_HOLDER}"
+
 const val PACKAGE_NAME_HOLDER = "{PACKAGE_NAME_HOLDER}"
 const val FILE_PATH_HOLDER = "{FILE_NAME_HOLDER}"
 const val DIR_PATH_HOLDER = "{DIR_NAME_HOLDER}"
@@ -158,4 +160,4 @@ const val ADB_OPPO_PUT_MCC_2 =
 const val ADB_OPPO_MCC_BROAD_CAST_SEND =
     "${ANDROID_HOME_PATH_HOLDER}adb${SPACE_HOLDER}shell${SPACE_HOLDER}am${SPACE_HOLDER}broadcast${SPACE_HOLDER}-a${SPACE_HOLDER}android.telephony.action.mcc_change${SPACE_HOLDER}--es${SPACE_HOLDER}mcc${SPACE_HOLDER}${MCC_HOLDER}${SPACE_HOLDER}-n${SPACE_HOLDER}com.redteamobile.roaming/.receiver.MccChangeReceiver"
 
-const val SCREEN_COPY = "scrcpy"
+const val SCREEN_COPY = "ADB=${ANDROID_HOME_PATH_HOLDER}/platform-tools/adb${SPACE_HOLDER}${SCRCPY_PATH_HOLDER}/scrcpy"
