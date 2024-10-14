@@ -35,6 +35,7 @@ import kotlinproject.composeapp.generated.resources.icon_adb
 import kotlinproject.composeapp.generated.resources.icon_apk
 import kotlinproject.composeapp.generated.resources.icon_app_inspect
 import kotlinproject.composeapp.generated.resources.icon_app_logo
+import kotlinproject.composeapp.generated.resources.icon_app_logo_small
 import kotlinproject.composeapp.generated.resources.icon_app_logo_with_background
 import kotlinproject.composeapp.generated.resources.icon_base_64
 import kotlinproject.composeapp.generated.resources.icon_file_explorer
@@ -74,7 +75,7 @@ fun SideBar(onIndexChangeListener: (Int) -> Unit) {
             onItemClickListener.invoke(8)
         }) {
             Image(
-                painter = painterResource(Res.drawable.icon_app_logo),
+                painter = painterResource(Res.drawable.icon_app_logo_small),
                 "app logo",
                 modifier = Modifier.height(50.dp).width(50.dp),
             )
