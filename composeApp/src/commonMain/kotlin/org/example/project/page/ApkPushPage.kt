@@ -46,8 +46,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.example.project.adb.ADB_REBOOT
+import org.example.project.adb.ADB_ROOT
 import org.example.project.adb.AdbExecuteCallback
 import org.example.project.adb.AdbExecutor
+import org.example.project.adb.AdbFileExplorer
 import org.example.project.adb.ApkPushExecutor
 import org.example.project.adb.ApkPushExecutor.HONOR_SUFFIX
 import org.example.project.adb.ApkPushExecutor.HYPER_COMM_APK_NAME
@@ -77,6 +79,14 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
  * adb shell mv /product_h/region_comm/china/app/HnRoamingRed/HnRoamingRed.apk /product_h/region_comm/china/app/HnRoamingRed/HnRoamingRed.apk.honor
  * adb push ${} /product_h/region_comm/china/app/HnRoamingRed
  *
+ * adb shell ls /product_h/region_comm/china/app/HnRoamingRed
+ * adb shell rm /product_h/region_comm/china/app/HnRoamingRed/xxxx.apk
+ * adb shell mv /product_h/region_comm/china/app/HnRoamingRed/HnRoamingRed.apk.apk.honor /product_h/region_comm/china/app/HnRoamingRed/HnRoamingRed
+ *
+ * adb shell mv /system/priv-app/HnSystemServer/HyperComm.apk /system/priv-app/HnSystemServer/HyperComm.apk.redtea
+ * adb shell mv /system/priv-app/HnSystemServer/HyperComm.apk.honor /system/priv-app/HnSystemServer/HyperComm.apk
+ *
+ *
  * @author YangJianyu
  * @date 2024/8/29
  */
@@ -93,11 +103,18 @@ fun ApkPushPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
     var rootResult by remember { mutableStateOf(ADB_RESULT_UNKNOWN) }
     var remountResult by remember { mutableStateOf(ADB_RESULT_UNKNOWN) }
 
-    var hyperCommRenameResult by remember { mutableStateOf(ADB_RESULT_UNKNOWN) }
-    var redTeaRoamingPushResult by remember { mutableStateOf(ADB_RESULT_UNKNOWN) }
+    var redTeaHyperCommRenameResult by remember { mutableStateOf(ADB_RESULT_UNKNOWN) }
+    var redTeaRedTeaRoamingPushResult by remember { mutableStateOf(ADB_RESULT_UNKNOWN) }
 
-    var redTeaRoamingRenameResult by remember { mutableStateOf(ADB_RESULT_UNKNOWN) }
-    var hyperCommPushResult by remember { mutableStateOf(ADB_RESULT_UNKNOWN) }
+    var redTeaRedTeaRoamingRenameResult by remember { mutableStateOf(ADB_RESULT_UNKNOWN) }
+    var redTeaHyperCommPushResult by remember { mutableStateOf(ADB_RESULT_UNKNOWN) }
+
+    var honorRedTeaRoamingDeleteResult by remember { mutableStateOf(ADB_RESULT_UNKNOWN) }
+    var honorHyperDeleteResult by remember { mutableStateOf(ADB_RESULT_UNKNOWN) }
+
+    var honorRedTeaRoamingRenameResult by remember { mutableStateOf(ADB_RESULT_UNKNOWN) }
+    var honorHyperCommRenameResult by remember { mutableStateOf(ADB_RESULT_UNKNOWN) }
+
 
     fun getIconByResult(result: Int): DrawableResource {
         return when (result) {
@@ -164,7 +181,6 @@ fun ApkPushPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
                     if (!redTeaRoamingApkPath.isNullOrEmpty()) {
                         redTeaRoamingPath = redTeaRoamingApkPath
                     }
-
                 }
             }
         }
@@ -286,7 +302,7 @@ fun ApkPushPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
             Text(
                 text = "Steps :",
                 fontSize = 14.sp,
-                modifier = Modifier.padding(bottom = 5.dp),
+                modifier = Modifier.padding(top = 10.dp, bottom = 5.dp),
                 textAlign = TextAlign.Center,
             )
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -329,7 +345,7 @@ fun ApkPushPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(
-                    painter = painterResource(getIconByResult(hyperCommRenameResult)),
+                    painter = painterResource(getIconByResult(redTeaHyperCommRenameResult)),
                     "Rename Hypercomm.apk to Hypercomm.apk.honor",
                     colorFilter = ColorFilter.tint(
                         ColorTheme
@@ -348,7 +364,7 @@ fun ApkPushPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(
-                    painter = painterResource(getIconByResult(hyperCommPushResult)),
+                    painter = painterResource(getIconByResult(redTeaHyperCommPushResult)),
                     "Push Redtea Signed Hypercomm Apk",
                     colorFilter = ColorFilter.tint(
                         ColorTheme
@@ -367,7 +383,7 @@ fun ApkPushPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(
-                    painter = painterResource(getIconByResult(redTeaRoamingRenameResult)),
+                    painter = painterResource(getIconByResult(redTeaRedTeaRoamingRenameResult)),
                     "Rename HnRoamingRed.apk to HnRoamingRed.apk.honor",
                     colorFilter = ColorFilter.tint(
                         ColorTheme
@@ -386,7 +402,7 @@ fun ApkPushPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(
-                    painter = painterResource(getIconByResult(redTeaRoamingPushResult)),
+                    painter = painterResource(getIconByResult(redTeaRedTeaRoamingPushResult)),
                     "Push Redtea Signed RedteaRoaming Apk",
                     colorFilter = ColorFilter.tint(
                         ColorTheme
@@ -418,10 +434,10 @@ fun ApkPushPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
                     onClick = {
                         rootResult = ADB_RESULT_UNKNOWN
                         remountResult = ADB_RESULT_UNKNOWN
-                        hyperCommRenameResult = ADB_RESULT_UNKNOWN
-                        hyperCommPushResult = ADB_RESULT_UNKNOWN
-                        redTeaRoamingRenameResult = ADB_RESULT_UNKNOWN
-                        redTeaRoamingPushResult = ADB_RESULT_UNKNOWN
+                        redTeaHyperCommRenameResult = ADB_RESULT_UNKNOWN
+                        redTeaHyperCommPushResult = ADB_RESULT_UNKNOWN
+                        redTeaRedTeaRoamingRenameResult = ADB_RESULT_UNKNOWN
+                        redTeaRedTeaRoamingPushResult = ADB_RESULT_UNKNOWN
 
                         CoroutineScope(Dispatchers.Default).launch {
                             SettingsDelegate.putString(
@@ -444,12 +460,14 @@ fun ApkPushPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
                                                     oldFilePath = HYPER_COMM_APK_PATH + HYPER_COMM_APK_NAME,
                                                     newFilePath = HYPER_COMM_APK_PATH + HYPER_COMM_APK_NAME + HONOR_SUFFIX
                                                 ) { _renameHyperCommResult ->
-                                                    hyperCommRenameResult = _renameHyperCommResult
+                                                    redTeaHyperCommRenameResult =
+                                                        _renameHyperCommResult
                                                     ApkPushExecutor.push(
                                                         hyperCommPath,
                                                         HYPER_COMM_APK_PATH
                                                     ) { _hyperCommPushResult ->
-                                                        hyperCommPushResult = _hyperCommPushResult
+                                                        redTeaHyperCommPushResult =
+                                                            _hyperCommPushResult
                                                     }
                                                 }
                                             }
@@ -458,12 +476,13 @@ fun ApkPushPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
                                                     oldFilePath = ROAMING_APK_PATH + ROAMING_APK_NAME,
                                                     newFilePath = ROAMING_APK_PATH + ROAMING_APK_NAME + HONOR_SUFFIX
                                                 ) { _renameRoamingResult ->
-                                                    redTeaRoamingRenameResult = _renameRoamingResult
+                                                    redTeaRedTeaRoamingRenameResult =
+                                                        _renameRoamingResult
                                                     ApkPushExecutor.push(
                                                         redTeaRoamingPath,
                                                         ROAMING_APK_PATH
                                                     ) { _redTeaRoamingPushResult ->
-                                                        redTeaRoamingPushResult =
+                                                        redTeaRedTeaRoamingPushResult =
                                                             _redTeaRoamingPushResult
                                                     }
                                                 }
@@ -476,8 +495,188 @@ fun ApkPushPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
                     }, "Process"
                 )
             }
-        }
+//            Column {
+//                Text(
+//                    text = "To Honor Signature Steps :",
+//                    fontSize = 14.sp,
+//                    modifier = Modifier.padding(bottom = 5.dp),
+//                    textAlign = TextAlign.Center,
+//                )
+//                Row(verticalAlignment = Alignment.CenterVertically) {
+//                    Image(
+//                        painter = painterResource(getIconByResult(honorRedTeaRoamingDeleteResult)),
+//                        "Delete vSIM.. apk(Redtea Signature)",
+//                        colorFilter = ColorFilter.tint(
+//                            ColorTheme
+//                        ),
+//                        modifier = Modifier
+//                            .height(26.dp)
+//                            .width(26.dp).padding(end = 5.dp)
+//                    )
+//                    Text(
+//                        text = "Delete vSIM.. apk(Redtea Signature)",
+//                        fontSize = 14.sp,
+//                        lineHeight = 14.sp,
+//                        modifier = Modifier,
+//                        textAlign = TextAlign.Center,
+//                    )
+//                }
+//                Row(verticalAlignment = Alignment.CenterVertically) {
+//                    Image(
+//                        painter = painterResource(getIconByResult(honorRedTeaRoamingRenameResult)),
+//                        "Rename HnRedRoaming.apk.honor to HnRedRoaming.apk",
+//                        colorFilter = ColorFilter.tint(
+//                            ColorTheme
+//                        ),
+//                        modifier = Modifier
+//                            .height(26.dp)
+//                            .width(26.dp).padding(end = 5.dp)
+//                    )
+//                    Text(
+//                        text = "Rename HnRedRoaming.apk.honor to HnRedRoaming.apk",
+//                        fontSize = 14.sp,
+//                        lineHeight = 14.sp,
+//                        modifier = Modifier,
+//                        textAlign = TextAlign.Center,
+//                    )
+//                }
+//                Row(verticalAlignment = Alignment.CenterVertically) {
+//                    Image(
+//                        painter = painterResource(getIconByResult(honorHyperDeleteResult)),
+//                        "Delete Hypercomm.apk(Redtea Signature)",
+//                        colorFilter = ColorFilter.tint(
+//                            ColorTheme
+//                        ),
+//                        modifier = Modifier
+//                            .height(26.dp)
+//                            .width(26.dp).padding(end = 5.dp)
+//                    )
+//                    Text(
+//                        text = "Delete Hypercomm.apk(Redtea Signature)",
+//                        fontSize = 14.sp,
+//                        lineHeight = 14.sp,
+//                        modifier = Modifier,
+//                        textAlign = TextAlign.Center,
+//                    )
+//                }
+//                Row(verticalAlignment = Alignment.CenterVertically) {
+//                    Image(
+//                        painter = painterResource(getIconByResult(honorHyperCommRenameResult)),
+//                        "Rename Hypercomm.apk.honor to Hypercomm.apk",
+//                        colorFilter = ColorFilter.tint(
+//                            ColorTheme
+//                        ),
+//                        modifier = Modifier
+//                            .height(26.dp)
+//                            .width(26.dp).padding(end = 5.dp)
+//                    )
+//                    Text(
+//                        text = "Rename Hypercomm.apk.honor to Hypercomm.apk",
+//                        fontSize = 14.sp,
+//                        lineHeight = 14.sp,
+//                        modifier = Modifier,
+//                        textAlign = TextAlign.Center,
+//                    )
+//                }
+//                Row(
+//                    modifier = Modifier.fillMaxWidth(1f).padding(top = 10.dp),
+//                    horizontalArrangement = Arrangement.End
+//                ) {
+//                    RButton(onClick = {
+//                        AdbExecutor.exec(ADB_REBOOT, object : AdbExecuteCallback {
+//                            override fun onPrint(line: String) {
+//                            }
+//                        })
+//                    }, "Reboot")
+//                    Spacer(modifier = Modifier.width(15.dp))
+//                    RButton(
+//                        onClick = {
+//                            rootResult = ADB_RESULT_UNKNOWN
+//                            remountResult = ADB_RESULT_UNKNOWN
+//                            redTeaHyperCommRenameResult = ADB_RESULT_UNKNOWN
+//                            redTeaHyperCommPushResult = ADB_RESULT_UNKNOWN
+//                            redTeaRedTeaRoamingRenameResult = ADB_RESULT_UNKNOWN
+//                            redTeaRedTeaRoamingPushResult = ADB_RESULT_UNKNOWN
+//
+//                            CoroutineScope(Dispatchers.Default).launch {
+//                                SettingsDelegate.putString(
+//                                    AppPreferencesKey.HYPER_COMM_APK_PATH,
+//                                    hyperCommPath
+//                                )
+//                                SettingsDelegate.putString(
+//                                    AppPreferencesKey.RED_TEA_MOBILE_APK_PATH,
+//                                    redTeaRoamingPath
+//                                )
+//
+//                                ApkPushExecutor.root { _rootResult ->
+//                                    rootResult = _rootResult
+//                                    if (rootResult == ADB_RESULT_OK) {
+//                                        ApkPushExecutor.remount { _remountResult ->
+//                                            remountResult = _remountResult
+//                                            if (remountResult == ADB_RESULT_OK) {
+//                                                CoroutineScope(Dispatchers.Default).launch {
+//                                                    // redtea roaming apk revert
+//                                                    AdbFileExplorer.getFileList(ROAMING_APK_PATH) { childFiles ->
+//                                                        println("apk" + childFiles.size)
+//                                                        // delete old redtea roaming apk
+//                                                        childFiles.forEach {
+//                                                            if (it.endsWith(".apk")) {
+//                                                                ApkPushExecutor.remove(it) { result ->
+//                                                                    honorRedTeaRoamingDeleteResult =
+//                                                                        result
+//                                                                }
+//                                                            }
+//                                                        }
+//                                                        // rename HnRedRoaming.apk.honor -> HnRedRoaming.apk
+//                                                        ApkPushExecutor.rename(
+//                                                            oldFilePath = ROAMING_APK_PATH + ROAMING_APK_NAME + HONOR_SUFFIX,
+//                                                            newFilePath = ROAMING_APK_PATH + ROAMING_APK_NAME
+//                                                        ) { result ->
+//                                                            honorRedTeaRoamingRenameResult = result
+//                                                        }
+//                                                    }
+//                                                }
+//                                                CoroutineScope(Dispatchers.Default).launch {
+//                                                    // hyper comm apk revert
+//                                                    AdbFileExplorer.getFileList(HYPER_COMM_APK_PATH) { childFiles ->
+//                                                        println("apk" + childFiles.size)
+//                                                        // delete old hyper comm apk
+//                                                        childFiles.forEach {
+//                                                            if (it.endsWith(".apk")) {
+//                                                                ApkPushExecutor.remove(it) { result ->
+//                                                                    println("delete succ:$it")
+//                                                                    honorHyperDeleteResult = result
+//                                                                }
+//                                                            }
+//                                                            // rename HyperComm.apk.honor -> HyperComm.apk
+//                                                            ApkPushExecutor.rename(
+//                                                                oldFilePath = HYPER_COMM_APK_PATH + HYPER_COMM_APK_NAME + HONOR_SUFFIX,
+//                                                                newFilePath = HYPER_COMM_APK_PATH + HYPER_COMM_APK_NAME
+//                                                            ) { result ->
+//                                                                honorHyperCommRenameResult = result
+//                                                                println("rename succ HyperComm.apk.honor -> HyperComm.apk")
+//                                                            }
+//                                                        }
+//                                                    }
+//                                                }
+//                                            }
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }, "Honor"
+//                    )
+//                }
+//            }
 
+            // Root
+            // Remount
+            // Delete vSIM.. apk(Redtea Signature)
+            // Rename HnRedRoaming.apk.honor to HnRedRoaming.apk
+            // Delete Hypercomm.apk(Redtea Signature)
+            // Rename Hypercomm.apk.honor to Hypercomm.apk
+
+        }
     }
 
 }

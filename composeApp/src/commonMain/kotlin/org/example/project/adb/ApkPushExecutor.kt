@@ -95,7 +95,9 @@ object ApkPushExecutor {
             }
 
             override fun onExit(exitCode: Int) {
-                println("remove" + exitCode)
+                if (exitCode == 0) {
+                    callback.invoke(ADB_RESULT_OK)
+                }
             }
         })
     }

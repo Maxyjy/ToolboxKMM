@@ -32,7 +32,9 @@ fun DeviceExplorerPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.curr
         // 进入组件时执行，lifecycleOwner 改变后重新执行（先回调 onDispose）
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_START) {
-                AdbFileExplorer.getFileList(ADB_ROOT)
+                AdbFileExplorer.getFileList(ADB_ROOT) { childFiles ->
+
+                }
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
