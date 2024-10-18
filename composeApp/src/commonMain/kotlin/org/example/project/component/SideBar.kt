@@ -90,7 +90,7 @@ fun SideBar(onIndexChangeListener: (Int) -> Unit) {
             Res.drawable.icon_file_explorer,
             onItemClickListener,
             selectedIndex,
-            enabled = false,
+//            enabled = false,
         )
         MenuItem(
             4,

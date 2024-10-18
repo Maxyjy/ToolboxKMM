@@ -361,9 +361,6 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
             if (event == Lifecycle.Event.ON_RESUME) {
                 refreshFlag = true
             }
-            if (event == Lifecycle.Event.ON_PAUSE) {
-                refreshFlag = false
-            }
             if (event == Lifecycle.Event.ON_START) {
                 CoroutineScope(Dispatchers.Default).launch {
                     val targetPackageName =
@@ -396,6 +393,7 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
+            refreshFlag = false
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
@@ -854,7 +852,12 @@ fun MccPanel(
                         CoroutineScope(Dispatchers.Main).launch {
                             onButtonClick.invoke(ADB_HONOR_PUT_MCC.replace(MCC_HOLDER, mcc))
                             delay(500L)
-                            onButtonClick.invoke(ADB_HONOR_MCC_BROAD_CAST_SEND.replace(MCC_HOLDER, mcc))
+                            onButtonClick.invoke(
+                                ADB_HONOR_MCC_BROAD_CAST_SEND.replace(
+                                    MCC_HOLDER,
+                                    mcc
+                                )
+                            )
                         }
                     },
             )
