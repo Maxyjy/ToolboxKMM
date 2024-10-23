@@ -746,7 +746,7 @@ fun SettingPanel(onButtonClick: (String) -> Any) {
             }
         }
         Row {
-            AdbExecuteButton("Sim Manage") {
+            AdbExecuteButton("SIM Manage") {
                 onButtonClick.invoke(ADB_OPEN_HONOR_SIM_SETTING)
             }
             AdbExecuteButton("Wifi") {
@@ -820,7 +820,7 @@ fun MccPanel(
             fontSize = 12.sp,
             modifier = Modifier.fillMaxWidth().padding(0.dp, 0.dp, 0.dp, 5.dp),
             textAlign = TextAlign.Start,
-            text = "Honor Mobile Country Code : [$honorCurrentMcc]",
+            text = "Honor MCC : [$honorCurrentMcc]",
             fontWeight = FontWeight(600),
         )
         Box {

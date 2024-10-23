@@ -8,7 +8,7 @@ package org.example.project.adb
  */
 object AdbFileExplorer {
 
-    const val ROOT_PATH = "."
+    const val ROOT_PATH = ""
 
     fun getFileList(path: String, callback: (ArrayList<String>) -> Unit) {
         val cmd = ADB_PATH_LIST_FILE.replace(ADB_PATH_HOLDER, path)
@@ -28,7 +28,8 @@ object AdbFileExplorer {
     }
 
     fun checkIsDirectory(path: String, callback: (Boolean) -> Unit) {
-        val cmd = ADB_PATH_CHECK_IS_DIRECTORY.replace(ADB_PATH_HOLDER, path)
+        val rawPath = path.replace(" ","\u0020")
+        val cmd = ADB_PATH_CHECK_IS_DIRECTORY.replace(ADB_PATH_HOLDER, rawPath)
         AdbExecutor.exec(cmd, object : AdbExecuteCallback {
             override fun onPrint(line: String) {
                 println("check is dir: $line")

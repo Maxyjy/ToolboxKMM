@@ -84,30 +84,30 @@ fun SideBar(onIndexChangeListener: (Int) -> Unit) {
         MenuItem(0, "ADB Execute", Res.drawable.icon_adb, onItemClickListener, selectedIndex)
         MenuItem(1, "Log Merge", Res.drawable.icon_log_merge, onItemClickListener, selectedIndex)
         MenuItem(2, "APK Push", Res.drawable.icon_apk, onItemClickListener, selectedIndex)
-        MenuItem(
-            3,
-            "File Explorer",
-            Res.drawable.icon_file_explorer,
-            onItemClickListener,
-            selectedIndex,
+//        MenuItem(
+//            3,
+//            "File Explorer",
+//            Res.drawable.icon_file_explorer,
+//            onItemClickListener,
+//            selectedIndex,
 //            enabled = false,
-        )
-        MenuItem(
-            4,
-            "APK Inspect",
-            Res.drawable.icon_app_inspect,
-            onItemClickListener,
-            selectedIndex,
-            enabled = false,
-        )
-        MenuItem(
-            5,
-            "Performance",
-            Res.drawable.icon_performance,
-            onItemClickListener,
-            selectedIndex,
-            enabled = false,
-        )
+//        )
+//        MenuItem(
+//            4,
+//            "APK Inspect",
+//            Res.drawable.icon_app_inspect,
+//            onItemClickListener,
+//            selectedIndex,
+//            enabled = false,
+//        )
+//        MenuItem(
+//            5,
+//            "Performance",
+//            Res.drawable.icon_performance,
+//            onItemClickListener,
+//            selectedIndex,
+//            enabled = false,
+//        )
         MenuItem(
             6,
             "Json Format",

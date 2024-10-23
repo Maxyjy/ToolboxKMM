@@ -48,8 +48,8 @@ object ApkPushExecutor {
 
     fun rename(oldFilePath: String, newFilePath: String, callback: (Int) -> Unit) {
         var adbCommand = ADB_RENAME
-        adbCommand = adbCommand.replace(RENAME_OLD_FILE_PATH, oldFilePath)
-        adbCommand = adbCommand.replace(RENAME_NEW_FILE_PATH, newFilePath)
+        adbCommand = adbCommand.replace(RENAME_OLD_FILE_PATH, oldFilePath.replace(" ","\u0020"))
+        adbCommand = adbCommand.replace(RENAME_NEW_FILE_PATH, newFilePath.replace(" ","\u0020"))
         AdbExecutor.exec(adbCommand, object : AdbExecuteCallback {
             override fun onPrint(line: String) {
                 if (line.contains("No such file or directory")) {
@@ -67,8 +67,8 @@ object ApkPushExecutor {
 
     fun push(sourceFilePath: String, targetFilePath: String, callback: (Int) -> Unit) {
         var adbCommand = ADB_PUSH
-        adbCommand = adbCommand.replace(PUSH_SOURCE_PATH, sourceFilePath)
-        adbCommand = adbCommand.replace(PUSH_TARGET_PATH, targetFilePath)
+        adbCommand = adbCommand.replace(PUSH_SOURCE_PATH, sourceFilePath.replace(" ","\u0020"))
+        adbCommand = adbCommand.replace(PUSH_TARGET_PATH, targetFilePath.replace(" ","\u0020"))
         AdbExecutor.exec(adbCommand, object : AdbExecuteCallback {
             override fun onPrint(line: String) {
                 if (line.contains("file pushed")) {
@@ -80,6 +80,25 @@ object ApkPushExecutor {
 
             override fun onExit(exitCode: Int) {
                 println("Push" + exitCode)
+            }
+        })
+    }
+
+    fun pull(sourceFilePath: String, targetFilePath: String, callback: (Int) -> Unit) {
+        var adbCommand = ADB_PULL
+        adbCommand = adbCommand.replace(PULL_SOURCE_PATH, sourceFilePath.replace(" ","\u0020"))
+        adbCommand = adbCommand.replace(PULL_TARGET_PATH, targetFilePath.replace(" ","\u0020"))
+        AdbExecutor.exec(adbCommand, object : AdbExecuteCallback {
+            override fun onPrint(line: String) {
+                if (line.contains("file pulled")) {
+                    callback.invoke(ADB_RESULT_OK)
+                } else if (line.contains("error")) {
+                    callback.invoke(ADB_RESULT_FAILED)
+                }
+            }
+
+            override fun onExit(exitCode: Int) {
+                println("pull" + exitCode)
             }
         })
     }
