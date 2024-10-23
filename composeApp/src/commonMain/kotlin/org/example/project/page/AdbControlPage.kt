@@ -914,7 +914,7 @@ fun AdbExecuteButton(text: String, onClick: () -> Unit) {
 
 fun appendOutput(oldText: String, text: String): String {
     val appendText = if (oldText.isNotEmpty()) {
-        "$oldText\n$text"
+        "$text\n$oldText"
     } else {
         text
     }
