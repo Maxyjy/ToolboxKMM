@@ -34,7 +34,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -50,6 +52,7 @@ import io.github.vinceglb.filekit.core.pickFile
 import kotlinproject.composeapp.generated.resources.Res
 import kotlinproject.composeapp.generated.resources.icon_delete
 import kotlinproject.composeapp.generated.resources.icon_folder
+import kotlinproject.composeapp.generated.resources.icon_loading
 import kotlinproject.composeapp.generated.resources.icon_scrcpy
 import kotlinproject.composeapp.generated.resources.icon_send
 import kotlinx.coroutines.CoroutineScope
@@ -58,6 +61,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.example.project.adb.ADB_ANDROID_VERSION
 import org.example.project.adb.ADB_APP_VERSION
+import org.example.project.adb.ADB_BUILD_VERSION
 import org.example.project.component.ColorDivider
 import org.example.project.component.ColorText
 import org.example.project.component.ColorTheme
@@ -144,6 +148,7 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
     var deviceName by remember { mutableStateOf("No Connected Device") }
     var deviceBrand by remember { mutableStateOf("") }
     var deviceAndroidVersion by remember { mutableStateOf("") }
+    var deviceBuildVersion by remember { mutableStateOf("") }
 
     var isRecording by remember { mutableStateOf(false) }
     var startRecordingTime by remember { mutableStateOf(0L) }
@@ -226,7 +231,7 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
             }
 
             ADB_HONOR_GET_MCC -> {
-                executeADB(ADB_HONOR_GET_MCC, object : AdbExecuteCallback {
+                AdbExecutor.exec(ADB_HONOR_GET_MCC, object : AdbExecuteCallback {
                     override fun onPrint(line: String) {
                         honorCurrentMcc = if (line == "null" || line.contains("no devices")) {
                             ""
@@ -239,7 +244,7 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
             }
 
             ADB_HONOR_GET_MCC_LEVEL -> {
-                executeADB(ADB_HONOR_GET_MCC_LEVEL, object : AdbExecuteCallback {
+                AdbExecutor.exec(ADB_HONOR_GET_MCC_LEVEL, object : AdbExecuteCallback {
                     override fun onPrint(line: String) {
                         honorCurrentMccLevel = if (line == "null" || line.contains("no devices")) {
                             ""
@@ -252,7 +257,7 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
             }
 
             ADB_HONOR_GET_MCC_ENABLE_OVERSEA -> {
-                executeADB(ADB_HONOR_GET_MCC_ENABLE_OVERSEA, object : AdbExecuteCallback {
+                AdbExecutor.exec(ADB_HONOR_GET_MCC_ENABLE_OVERSEA, object : AdbExecuteCallback {
                     override fun onPrint(line: String) {
                         honorCurrentMccOverseaEnable = line == "1"
                         println("ADB_HONOR_GET_MCC_ENABLE_OVERSEA $line")
@@ -274,6 +279,14 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                         }
                     })
                 }
+            }
+
+            ADB_BUILD_VERSION -> {
+                AdbExecutor.exec(ADB_BUILD_VERSION, object : AdbExecuteCallback {
+                    override fun onPrint(line: String) {
+                        deviceBuildVersion = line
+                    }
+                })
             }
 
             ADB_ANDROID_VERSION -> {
@@ -350,6 +363,10 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                             execADB(ADB_HONOR_GET_MCC_ENABLE_OVERSEA)
                         }
                     }
+                }, cmdPrinter = { cmd ->
+                    outputText = appendOutput(outputText, "———————————————————————————————")
+                    outputText = appendOutput(outputText, cmd)
+                    outputText = appendOutput(outputText, "———————————————————————————————")
                 })
             }
         }
@@ -380,6 +397,7 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                             execADB(ADB_HONOR_GET_MCC_ENABLE_OVERSEA)
                             execADB(ADB_APP_VERSION)
                             execADB(ADB_ANDROID_VERSION)
+                            execADB(ADB_BUILD_VERSION)
                         }
                         delay(5000)
                     }
@@ -417,84 +435,35 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                 Column(modifier = Modifier.weight(1f)) {
                     Row {
                         Text(
-                            fontSize = 14.sp,
-                            modifier = Modifier.weight(1f).padding(2.dp, 0.dp, 0.dp, 10.dp),
+                            fontSize = 13.sp,
+                            modifier = Modifier.weight(1f).padding(2.dp, 0.dp, 0.dp, 0.dp),
                             textAlign = TextAlign.Start,
+                            lineHeight = 13.sp,
                             text = "$deviceBrand $deviceName ($deviceAndroidVersion)"
                         )
-                        Image(
-                            painter = painterResource(Res.drawable.icon_scrcpy),
-                            "scrcpy",
-                            colorFilter = ColorFilter.tint(
-                                ColorText
-                            ),
-                            alpha = 0f,
-                            modifier = Modifier.align(Alignment.CenterVertically)
-                                .padding(5.dp)
-                                .height(22.dp)
-                                .width(22.dp).clickable {
-                                    CoroutineScope(Dispatchers.Main).launch {
-                                        if (SettingsDelegate.getString(SCRCPY_HOME_PATH)
-                                                .isNullOrEmpty()
-                                        ) {
-                                            scrcpyDialogState = true
-                                        } else {
-                                            var cmd = SCREEN_COPY.replace(
-                                                SCRCPY_PATH_HOLDER,
-                                                SettingsDelegate.getString(SCRCPY_HOME_PATH)
-                                                    .toString()
-                                            )
-                                            cmd = cmd.replace(
-                                                ANDROID_HOME_PATH_HOLDER,
-                                                SettingsDelegate.getString(ANDROID_HOME_PATH)
-                                                    .toString()
-                                            )
-                                            AdbExecutor.exec(
-                                                cmd,
-                                                object : AdbExecuteCallback {
-                                                    override fun onPrint(line: String) {
-                                                        CoroutineScope(Dispatchers.Main).launch {
-                                                            outputText =
-                                                                appendOutput(
-                                                                    outputText,
-                                                                    line
-                                                                )
-                                                        }
-                                                    }
-
-                                                    override fun onExit(exitCode: Int) {
-                                                        println("scrcpy$exitCode")
-                                                        if (exitCode == -1) {
-                                                            CoroutineScope(Dispatchers.Main).launch {
-                                                                outputText =
-                                                                    appendOutput(
-                                                                        outputText,
-                                                                        "scrcpy not install or error"
-                                                                    )
-                                                            }
-                                                        }
-                                                    }
-                                                })
-                                        }
-                                    }
-                                },
-                        )
                     }
+                    BasicTextField(
+                        "$deviceBuildVersion              ",
+                        textStyle = TextStyle(
+                            fontSize = 11.sp,
+                            lineHeight = 11.sp,
+                            color = Color(0xff686868),
+                            textAlign = TextAlign.Start
+                        ),
+                        onValueChange = {},
+                        modifier = Modifier.padding(2.dp, 5.dp, 20.dp, 10.dp),
+                    )
                     Box {
                         BasicTextField(
                             outputText,
-                            onValueChange = {
-                            },
-                            modifier = Modifier.fillMaxWidth().fillMaxHeight()
-                                .border(
-                                    DimenDivider,
-                                    color = ColorDivider,
-                                    shape = RoundedCornerShape(RoundedCorner)
-                                )
-                                .background(
-                                    Color.White,
-                                    RoundedCornerShape(RoundedCorner)
-                                ).padding(10.dp)
+                            onValueChange = {},
+                            modifier = Modifier.fillMaxWidth().fillMaxHeight().border(
+                                DimenDivider,
+                                color = ColorDivider,
+                                shape = RoundedCornerShape(RoundedCorner)
+                            ).background(
+                                Color.White, RoundedCornerShape(RoundedCorner)
+                            ).padding(10.dp)
                         )
                         Image(
                             painter = painterResource(Res.drawable.icon_delete),
@@ -503,18 +472,15 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                                 ColorGray
                             ),
                             modifier = Modifier.align(Alignment.BottomEnd)
-                                .padding(end = 10.dp, bottom = 10.dp)
-                                .height(20.dp)
-                                .width(20.dp).clickable {
+                                .padding(end = 10.dp, bottom = 10.dp).height(20.dp).width(20.dp)
+                                .clickable {
                                     outputText = ""
                                 },
                         )
                     }
                 }
                 Column(
-                    modifier = Modifier
-                        .verticalScroll(rememberScrollState())
-                        .width(280.dp)
+                    modifier = Modifier.verticalScroll(rememberScrollState()).width(280.dp)
                         .padding(start = 20.dp)
                 ) {
 
@@ -527,8 +493,7 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                                 cmd = cmd.replace(PACKAGE_NAME_HOLDER, packageName)
                                 CoroutineScope(Dispatchers.Default).launch {
                                     SettingsDelegate.putString(
-                                        AppPreferencesKey.TARGET_PACKAGE_NAME,
-                                        packageName
+                                        AppPreferencesKey.TARGET_PACKAGE_NAME, packageName
                                     )
                                 }
                             } else {
@@ -578,45 +543,55 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                             execADB(adbCommand)
                         }
                     }
-
                     Column {
-                        Text(
-                            fontSize = 12.sp,
-                            modifier = Modifier.fillMaxWidth().padding(0.dp, 5.dp, 0.dp, 5.dp),
-                            textAlign = TextAlign.Start,
-                            text = "Target Package Name :",
-                            fontWeight = FontWeight(600),
-                            color = if (packageNameInputHint) {
-                                ColorTheme
-                            } else {
-                                ColorText
-                            }
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(0.dp, 18.dp, 0.dp, 5.dp)
+                        ) {
+                            Text(
+                                fontSize = 12.sp,
+                                lineHeight = 12.sp,
+                                modifier = Modifier.weight(1f),
+                                textAlign = TextAlign.Start,
+                                text = "App Package Name :",
+                                fontWeight = FontWeight(600),
+                                color = if (packageNameInputHint) {
+                                    ColorTheme
+                                } else {
+                                    ColorText
+                                }
+                            )
+                            Image(
+                                painter = painterResource(Res.drawable.icon_loading),
+                                "refresh package name",
+                                colorFilter = ColorFilter.tint(
+                                    ColorGray
+                                ),
+                                modifier = Modifier
+                                    .height(20.dp).width(20.dp)
+                                    .clickable {
+                                    },
+                            )
+                        }
                         BasicTextField(
-                            packageName,
-                            onValueChange = {
+                            packageName, onValueChange = {
                                 packageNameInputHint = false
                                 packageName = it
-                            },
-                            modifier = Modifier.fillMaxWidth().wrapContentHeight()
-                                .border(
-                                    DimenDivider,
-                                    color = ColorDivider,
-                                    shape = RoundedCornerShape(RoundedCorner)
-                                )
-                                .background(
-                                    Color.White,
-                                    RoundedCornerShape(RoundedCorner)
-                                ).padding(top = 8.dp, bottom = 8.dp, start = 10.dp, end = 10.dp)
+                            }, modifier = Modifier.fillMaxWidth().wrapContentHeight().border(
+                                DimenDivider,
+                                color = ColorDivider,
+                                shape = RoundedCornerShape(RoundedCorner)
+                            ).background(
+                                Color.White, RoundedCornerShape(RoundedCorner)
+                            ).padding(top = 8.dp, bottom = 8.dp, start = 10.dp, end = 10.dp)
                         )
+                        Spacer(modifier = Modifier.height(2.dp))
                     }
                     AppPanel(appVersionName, onButtonClick)
                     SettingPanel(onButtonClick)
                     DevicePanel(onButtonClick)
                     ScreenPanel(
-                        isRecording,
-                        readableRecordingDuration,
-                        onButtonClick
+                        isRecording, readableRecordingDuration, onButtonClick
                     )
                     MccPanel(
                         honorCurrentMcc,
@@ -761,9 +736,7 @@ fun SettingPanel(onButtonClick: (String) -> Any) {
 
 @Composable
 fun ScreenPanel(
-    isRecording: Boolean,
-    readableRecordingDuration: String,
-    onButtonClick: (String) -> Any
+    isRecording: Boolean, readableRecordingDuration: String, onButtonClick: (String) -> Any
 ) {
     Column {
         Row {
@@ -825,20 +798,15 @@ fun MccPanel(
         )
         Box {
             BasicTextField(
-                mcc,
-                onValueChange = {
+                mcc, onValueChange = {
                     mcc = it
-                },
-                modifier = Modifier.fillMaxWidth().wrapContentHeight()
-                    .border(
-                        DimenDivider,
-                        color = ColorDivider,
-                        shape = RoundedCornerShape(RoundedCorner)
-                    )
-                    .background(
-                        Color.White,
-                        RoundedCornerShape(RoundedCorner)
-                    ).padding(top = 8.dp, bottom = 8.dp, start = 10.dp, end = 10.dp)
+                }, modifier = Modifier.fillMaxWidth().wrapContentHeight().border(
+                    DimenDivider,
+                    color = ColorDivider,
+                    shape = RoundedCornerShape(RoundedCorner)
+                ).background(
+                    Color.White, RoundedCornerShape(RoundedCorner)
+                ).padding(top = 8.dp, bottom = 8.dp, start = 10.dp, end = 10.dp)
             )
             Image(
                 painter = painterResource(Res.drawable.icon_send),
@@ -846,16 +814,14 @@ fun MccPanel(
                 colorFilter = ColorFilter.tint(
                     ColorText
                 ),
-                modifier = Modifier.align(Alignment.CenterEnd).padding(end = 5.dp)
-                    .height(20.dp)
+                modifier = Modifier.align(Alignment.CenterEnd).padding(end = 5.dp).height(20.dp)
                     .width(20.dp).clickable {
                         CoroutineScope(Dispatchers.Main).launch {
                             onButtonClick.invoke(ADB_HONOR_PUT_MCC.replace(MCC_HOLDER, mcc))
-                            delay(500L)
+                            delay(1000L)
                             onButtonClick.invoke(
                                 ADB_HONOR_MCC_BROAD_CAST_SEND.replace(
-                                    MCC_HOLDER,
-                                    mcc
+                                    MCC_HOLDER, mcc
                                 )
                             )
                         }
@@ -891,18 +857,13 @@ fun MccPanel(
 @Composable
 fun AdbExecuteButton(text: String, onClick: () -> Unit) {
     Text(
-        modifier = Modifier.padding(end = 5.dp, bottom = 5.dp)
-            .clickable(
-                interactionSource = MutableInteractionSource(),
-                indication = PressedIndication()
-            ) {
-                onClick.invoke()
-            }.background(Color.White, RoundedCornerShape(4.dp))
-            .border(
-                width = 1.dp,
-                color = ColorTheme,
-                shape = RoundedCornerShape(4.dp)
-            ).padding(horizontal = 5.dp, vertical = 5.dp),
+        modifier = Modifier.padding(end = 5.dp, bottom = 5.dp).clickable(
+            interactionSource = MutableInteractionSource(), indication = PressedIndication()
+        ) {
+            onClick.invoke()
+        }.background(Color.White, RoundedCornerShape(4.dp)).border(
+            width = 1.dp, color = ColorTheme, shape = RoundedCornerShape(4.dp)
+        ).padding(horizontal = 5.dp, vertical = 5.dp),
         text = text,
         lineHeight = 12.sp,
         color = ColorTheme,
@@ -963,16 +924,13 @@ fun ScreenCopyPathDialog(dismissListener: (() -> Unit)) {
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(1f)
-                    .height(50.dp)
-                    .padding(0.dp, 0.dp, 0.dp, 10.dp)
+                modifier = Modifier.fillMaxWidth(1f).height(50.dp).padding(0.dp, 0.dp, 0.dp, 10.dp)
                     .border(
                         DimenDivider,
                         color = ColorDivider,
                         shape = RoundedCornerShape(RoundedCorner)
                     ).background(
-                        Color.White,
-                        RoundedCornerShape(RoundedCorner)
+                        Color.White, RoundedCornerShape(RoundedCorner)
                     )
             ) {
                 BasicTextField(
@@ -994,14 +952,12 @@ fun ScreenCopyPathDialog(dismissListener: (() -> Unit)) {
                     colorFilter = ColorFilter.tint(
                         ColorTheme
                     ),
-                    modifier = Modifier.padding(end = 8.dp)
-                        .height(26.dp)
-                        .width(26.dp).clickable(
-                            interactionSource = MutableInteractionSource(),
-                            indication = PressedIndication(8f)
-                        ) {
-                            launcher.launch()
-                        }.padding(3.dp)
+                    modifier = Modifier.padding(end = 8.dp).height(26.dp).width(26.dp).clickable(
+                        interactionSource = MutableInteractionSource(),
+                        indication = PressedIndication(8f)
+                    ) {
+                        launcher.launch()
+                    }.padding(3.dp)
                 )
             }
             Row(

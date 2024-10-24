@@ -57,7 +57,11 @@ actual fun unzipFile(filePath: String) {
     fis.close()
 }
 
-actual fun executeADB(adbCommand: String, callback: AdbExecuteCallback) {
+actual fun executeADB(
+    adbCommand: String,
+    callback: AdbExecuteCallback,
+    cmdPrinter: ((String) -> Unit)
+) {
     CoroutineScope(Dispatchers.Default).launch {
         try {
             // 设置 ADB 命令
@@ -71,6 +75,8 @@ actual fun executeADB(adbCommand: String, callback: AdbExecuteCallback) {
             adb = adb.replace(ANDROID_HOME_PATH_HOLDER, "${androidHome}/platform-tools/")
 
             println("execute: $adb")
+            cmdPrinter.invoke(adb.replace("${androidHome}/platform-tools/", ""))
+
             val process: Process = Runtime.getRuntime().exec(adb)
 
             // 读取命令输出

@@ -11,7 +11,11 @@ import org.example.project.executeADB
  */
 object AdbExecutor {
 
-    fun exec(adbCommand: String, callback: AdbExecuteCallback) {
+    fun exec(
+        adbCommand: String,
+        callback: AdbExecuteCallback,
+        cmdPrinter: ((String) -> Unit)? = null
+    ) {
         executeADB(adbCommand, object : AdbExecuteCallback {
             override fun onPrint(line: String) {
                 callback.onPrint(line)
@@ -19,6 +23,10 @@ object AdbExecutor {
 
             override fun onExit(exitCode: Int) {
                 callback.onExit(exitCode)
+            }
+        }, cmdPrinter = { cmd ->
+            cmdPrinter?.let {
+                cmdPrinter.invoke(cmd)
             }
         })
     }
@@ -41,7 +49,7 @@ object AdbExecutor {
 
     fun findActiveDisplayId(callback: (String?) -> Unit) {
         println("--- find active display id ---")
-        executeADB(ADB_FIND_ACTIVE_DISPLAY, object : AdbExecuteCallback {
+        exec(ADB_FIND_ACTIVE_DISPLAY, object : AdbExecuteCallback {
             override fun onPrint(line: String) {
                 if (line.contains("(active)")) {
                     val regex = "Display (\\d+) \\(active\\)".toRegex()
@@ -94,7 +102,7 @@ object AdbExecutor {
                 val screenRecorderPid = line.split(" ")
                 screenRecorderPid.forEach {
                     println("screen record pid $it")
-                    executeADB(
+                    exec(
                         ADB_SCREEN_STOP_RECORD.replace(PID_HOLDER, it),
                         callback
                     )

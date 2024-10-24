@@ -24,7 +24,11 @@ actual fun formatTime(timeMillis: Long): String {
 
 actual fun unzipFile(filePath: String) {}
 
-actual fun executeADB(adbCommand: String, callback: AdbExecuteCallback){
+actual fun executeADB(
+    adbCommand: String,
+    callback: AdbExecuteCallback,
+    cmdPrinter: ((String) -> Unit)
+) {
 
 }
 

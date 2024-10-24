@@ -37,10 +37,12 @@ object ApkPushExecutor {
     fun remount(callback: (Int) -> Unit) {
         AdbExecutor.exec(ADB_REMOUNT, object : AdbExecuteCallback {
             override fun onPrint(line: String) {
-                if (line.contains("Remount succeeded") || line.contains("overlay remount has been done,")) {
+            }
+
+            override fun onExit(exitCode: Int) {
+                super.onExit(exitCode)
+                if (exitCode == 0) {
                     callback.invoke(ADB_RESULT_OK)
-                } else if (line.contains("Not running as root.")) {
-                    callback.invoke(ADB_RESULT_FAILED)
                 }
             }
         })
@@ -48,8 +50,8 @@ object ApkPushExecutor {
 
     fun rename(oldFilePath: String, newFilePath: String, callback: (Int) -> Unit) {
         var adbCommand = ADB_RENAME
-        adbCommand = adbCommand.replace(RENAME_OLD_FILE_PATH, oldFilePath.replace(" ","\u0020"))
-        adbCommand = adbCommand.replace(RENAME_NEW_FILE_PATH, newFilePath.replace(" ","\u0020"))
+        adbCommand = adbCommand.replace(RENAME_OLD_FILE_PATH, oldFilePath.replace(" ", "\u0020"))
+        adbCommand = adbCommand.replace(RENAME_NEW_FILE_PATH, newFilePath.replace(" ", "\u0020"))
         AdbExecutor.exec(adbCommand, object : AdbExecuteCallback {
             override fun onPrint(line: String) {
                 if (line.contains("No such file or directory")) {
@@ -67,8 +69,8 @@ object ApkPushExecutor {
 
     fun push(sourceFilePath: String, targetFilePath: String, callback: (Int) -> Unit) {
         var adbCommand = ADB_PUSH
-        adbCommand = adbCommand.replace(PUSH_SOURCE_PATH, sourceFilePath.replace(" ","\u0020"))
-        adbCommand = adbCommand.replace(PUSH_TARGET_PATH, targetFilePath.replace(" ","\u0020"))
+        adbCommand = adbCommand.replace(PUSH_SOURCE_PATH, sourceFilePath.replace(" ", "\u0020"))
+        adbCommand = adbCommand.replace(PUSH_TARGET_PATH, targetFilePath.replace(" ", "\u0020"))
         AdbExecutor.exec(adbCommand, object : AdbExecuteCallback {
             override fun onPrint(line: String) {
                 if (line.contains("file pushed")) {
@@ -86,8 +88,8 @@ object ApkPushExecutor {
 
     fun pull(sourceFilePath: String, targetFilePath: String, callback: (Int) -> Unit) {
         var adbCommand = ADB_PULL
-        adbCommand = adbCommand.replace(PULL_SOURCE_PATH, sourceFilePath.replace(" ","\u0020"))
-        adbCommand = adbCommand.replace(PULL_TARGET_PATH, targetFilePath.replace(" ","\u0020"))
+        adbCommand = adbCommand.replace(PULL_SOURCE_PATH, sourceFilePath.replace(" ", "\u0020"))
+        adbCommand = adbCommand.replace(PULL_TARGET_PATH, targetFilePath.replace(" ", "\u0020"))
         AdbExecutor.exec(adbCommand, object : AdbExecuteCallback {
             override fun onPrint(line: String) {
                 if (line.contains("file pulled")) {
