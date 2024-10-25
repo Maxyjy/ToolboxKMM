@@ -561,17 +561,6 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                                     ColorText
                                 }
                             )
-                            Image(
-                                painter = painterResource(Res.drawable.icon_loading),
-                                "refresh package name",
-                                colorFilter = ColorFilter.tint(
-                                    ColorGray
-                                ),
-                                modifier = Modifier
-                                    .height(20.dp).width(20.dp)
-                                    .clickable {
-                                    },
-                            )
                         }
                         BasicTextField(
                             packageName, onValueChange = {
