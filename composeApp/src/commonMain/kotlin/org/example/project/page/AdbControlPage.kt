@@ -4,10 +4,14 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -21,6 +25,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Divider
 import androidx.compose.material.DrawerDefaults.scrimColor
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -52,8 +57,8 @@ import io.github.vinceglb.filekit.core.pickFile
 import kotlinproject.composeapp.generated.resources.Res
 import kotlinproject.composeapp.generated.resources.icon_delete
 import kotlinproject.composeapp.generated.resources.icon_folder
-import kotlinproject.composeapp.generated.resources.icon_loading
-import kotlinproject.composeapp.generated.resources.icon_scrcpy
+import kotlinproject.composeapp.generated.resources.icon_recorder_play
+import kotlinproject.composeapp.generated.resources.icon_recorder_stop
 import kotlinproject.composeapp.generated.resources.icon_send
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -80,6 +85,8 @@ import org.example.project.adb.ADB_HONOR_MCC_BROAD_CAST_SEND
 import org.example.project.adb.ADB_HONOR_PUT_MCC
 import org.example.project.adb.ADB_HONOR_PUT_MCC_ENABLE_OVERSEA
 import org.example.project.adb.ADB_HONOR_PUT_MCC_LEVEL
+import org.example.project.adb.ADB_HONOR_SCREEN_RECORDER_START
+import org.example.project.adb.ADB_HONOR_SCREEN_RECORDER_STOP
 import org.example.project.adb.ADB_INSTALL
 import org.example.project.adb.ADB_KILL_APP
 import org.example.project.adb.ADB_OPEN_ACCESSIBILITY_SETTING
@@ -94,34 +101,32 @@ import org.example.project.adb.ADB_PRINT_PATH
 import org.example.project.adb.ADB_REBOOT
 import org.example.project.adb.ADB_REMOUNT
 import org.example.project.adb.ADB_ROOT
-import org.example.project.adb.ADB_SAVE_SCREEN_RECORD
 import org.example.project.adb.ADB_SAVE_SCREEN_SHOT
 import org.example.project.adb.ADB_SCREEN_SHOT
 import org.example.project.adb.ADB_SCREEN_START_RECORD
 import org.example.project.adb.ADB_SCREEN_FIND_RECORD_PID
+import org.example.project.adb.ADB_SCREEN_ON
 import org.example.project.adb.ADB_SCREEN_STOP_RECORD
+import org.example.project.adb.ADB_SCREEN_SWIPE
 import org.example.project.adb.ADB_START_APP
 import org.example.project.adb.ADB_UNINSTALL
-import org.example.project.adb.ANDROID_HOME_PATH_HOLDER
 import org.example.project.adb.AdbExecuteCallback
 import org.example.project.adb.AdbExecutor
 import org.example.project.adb.DIR_PATH_HOLDER
 import org.example.project.adb.FILE_PATH_HOLDER
 import org.example.project.adb.MCC_HOLDER
 import org.example.project.adb.PACKAGE_NAME_HOLDER
-import org.example.project.adb.SCRCPY_PATH_HOLDER
-import org.example.project.adb.SCREEN_COPY
 import org.example.project.adb.SPACE_HOLDER
 import org.example.project.component.ColorGray
 import org.example.project.component.PressedIndication
 import org.example.project.component.RButton
-import org.example.project.executeADB
 import org.example.project.formatTime
 import org.example.project.getSystemCurrentTimeMillis
 import org.example.project.util.AppPreferencesKey
 import org.example.project.util.AppPreferencesKey.ANDROID_HOME_PATH
 import org.example.project.util.AppPreferencesKey.SCRCPY_HOME_PATH
 import org.example.project.util.SettingsDelegate
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -149,10 +154,6 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
     var deviceBrand by remember { mutableStateOf("") }
     var deviceAndroidVersion by remember { mutableStateOf("") }
     var deviceBuildVersion by remember { mutableStateOf("") }
-
-    var isRecording by remember { mutableStateOf(false) }
-    var startRecordingTime by remember { mutableStateOf(0L) }
-    var readableRecordingDuration by remember { mutableStateOf("") }
 
     var honorCurrentMcc by remember { mutableStateOf("") }
     var honorCurrentMccLevel by remember { mutableStateOf("") }
@@ -195,25 +196,12 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
             }
 
             ADB_SCREEN_START_RECORD -> {
-                isRecording = true
-                startRecordingTime = getSystemCurrentTimeMillis()
-                readableRecordingDuration = "00:00"
-                CoroutineScope(Dispatchers.Default).launch {
-                    while (isRecording) {
-                        delay(1000L)
-                        readableRecordingDuration =
-                            formatTime(getSystemCurrentTimeMillis() - startRecordingTime)
-                    }
-                }
                 AdbExecutor.startRecord(object : AdbExecuteCallback {
                     override fun onPrint(line: String) {
                         outputText = appendOutput(outputText, line)
                     }
 
                     override fun onExit(exitCode: Int) {
-                        if (adbCommand == ADB_SCREEN_FIND_RECORD_PID || adbCommand == ADB_SCREEN_START_RECORD) {
-                            isRecording = false
-                        }
                     }
                 })
             }
@@ -225,7 +213,6 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                     }
 
                     override fun onExit(exitCode: Int) {
-                        isRecording = false
                     }
                 })
             }
@@ -580,13 +567,16 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                     SettingPanel(onButtonClick)
                     DevicePanel(onButtonClick)
                     ScreenPanel(
-                        isRecording, readableRecordingDuration, onButtonClick
+                        onButtonClick
                     )
                     MccPanel(
                         honorCurrentMcc,
                         honorCurrentMccLevel,
                         honorCurrentMccOverseaEnable,
-                        onButtonClick
+                        onButtonClick,
+                        onHoverListener = { isHoverd ->
+
+                        }
                     )
                 }
             }
@@ -662,19 +652,26 @@ fun DevicePanel(onButtonClick: (String) -> Any) {
             text = "Device"
         )
         Row {
+            AdbExecuteButton("Reboot") {
+                onButtonClick.invoke(ADB_REBOOT)
+            }
             AdbExecuteButton("Remount") {
                 onButtonClick.invoke(ADB_REMOUNT)
             }
             AdbExecuteButton("Root") {
                 onButtonClick.invoke(ADB_ROOT)
             }
-            AdbExecuteButton("Reboot") {
-                onButtonClick.invoke(ADB_REBOOT)
-            }
         }
         Row {
             AdbExecuteButton("Top Activity") {
                 onButtonClick.invoke(ADB_DUMP_SHOW_TOP_ACTIVITY)
+            }
+            AdbExecuteButton("Unlock") {
+                CoroutineScope(Dispatchers.Default).launch {
+                    onButtonClick.invoke(ADB_SCREEN_ON)
+                    delay(500L)
+                    onButtonClick.invoke(ADB_SCREEN_SWIPE)
+                }
             }
         }
     }
@@ -725,7 +722,7 @@ fun SettingPanel(onButtonClick: (String) -> Any) {
 
 @Composable
 fun ScreenPanel(
-    isRecording: Boolean, readableRecordingDuration: String, onButtonClick: (String) -> Any
+    onButtonClick: (String) -> Any
 ) {
     Column {
         Row {
@@ -736,33 +733,29 @@ fun ScreenPanel(
                 fontWeight = FontWeight(600),
                 text = "ScreenShot / Record"
             )
-            if (isRecording) {
-                Text(
-                    color = ColorTheme,
-                    text = "Recording $readableRecordingDuration",
-                    fontSize = 12.sp,
-                    textAlign = TextAlign.End,
-                    modifier = Modifier.weight(1f).padding(0.dp, 0.dp, 0.dp, 5.dp),
-                )
-            }
         }
-        Row {
-            AdbExecuteButton("ScreenShot") {
+        Row(modifier = Modifier.wrapContentHeight().height(intrinsicSize = IntrinsicSize.Max)) {
+            AdbExecuteButton("Capture") {
                 onButtonClick.invoke(ADB_SCREEN_SHOT)
             }
+            Box(
+                modifier = Modifier.fillMaxHeight().padding(end = 5.dp, bottom = 6.dp, top = 2.dp)
+                    .width(0.5.dp)
+                    .background(ColorDivider)
+            )
+            AdbExecuteButton(Res.drawable.icon_recorder_play, "Start") {
+                onButtonClick.invoke(ADB_HONOR_SCREEN_RECORDER_START)
+            }
+            AdbExecuteButton(Res.drawable.icon_recorder_stop, "Stop") {
+                onButtonClick.invoke(ADB_HONOR_SCREEN_RECORDER_STOP)
+            }
+            Box(
+                modifier = Modifier.fillMaxHeight().padding(end = 5.dp, bottom = 6.dp, top = 2.dp)
+                    .width(0.5.dp)
+                    .background(ColorDivider)
+            )
             AdbExecuteButton("Save") {
                 onButtonClick.invoke(ADB_SAVE_SCREEN_SHOT)
-            }
-        }
-        Row {
-            AdbExecuteButton("Start Record") {
-                onButtonClick.invoke(ADB_SCREEN_START_RECORD)
-            }
-            AdbExecuteButton("Stop Record") {
-                onButtonClick.invoke(ADB_SCREEN_STOP_RECORD)
-            }
-            AdbExecuteButton("Save") {
-                onButtonClick.invoke(ADB_SAVE_SCREEN_RECORD)
             }
         }
     }
@@ -773,18 +766,57 @@ fun MccPanel(
     honorCurrentMcc: String,
     honorCurrentMccLevel: String,
     honorCurrentMccOverseaEnable: Boolean,
-    onButtonClick: (String) -> Any
+    onButtonClick: (String) -> Any,
+    onHoverListener: (Boolean) -> Unit,
 ) {
     var mcc by remember { mutableStateOf(honorCurrentMcc) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val isHovered by interactionSource.collectIsHoveredAsState()
 
-    Column {
-        Text(
-            fontSize = 12.sp,
-            modifier = Modifier.fillMaxWidth().padding(0.dp, 0.dp, 0.dp, 5.dp),
-            textAlign = TextAlign.Start,
-            text = "Honor MCC : [$honorCurrentMcc]",
-            fontWeight = FontWeight(600),
-        )
+    Column() {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth().padding(0.dp, 6.dp, 0.dp, 6.dp)
+        ) {
+            Text(
+                lineHeight = 12.sp,
+                fontSize = 12.sp,
+                modifier = Modifier.wrapContentWidth().align(Alignment.CenterVertically),
+                textAlign = TextAlign.Start,
+                text = "Honor MCC: ",
+                fontWeight = FontWeight(600),
+            )
+            Text(
+                lineHeight = 12.sp,
+                fontSize = 12.sp,
+                modifier = Modifier.wrapContentWidth().align(Alignment.CenterVertically),
+                textAlign = TextAlign.Start,
+                text = "[$honorCurrentMcc]",
+                fontWeight = FontWeight(600),
+            )
+//            Row(
+//                horizontalArrangement = Arrangement.End,
+//                modifier = Modifier.wrapContentWidth().padding(start = 5.dp)
+//                    .hoverable(interactionSource = interactionSource),
+//                verticalAlignment = Alignment.CenterVertically,
+//            ) {
+//                onHoverListener.invoke(isHovered)
+//                Image(
+//                    painter = painterResource(Res.drawable.icon_mcc),
+//                    "mcc",
+//                    colorFilter = ColorFilter.tint(
+//                        if (isHovered) {
+//                            ColorTheme
+//                        } else {
+//                            ColorDisable
+//                        }
+//                    ),
+//                    modifier = Modifier
+//                        .height(16.dp)
+//                        .width(16.dp),
+//                )
+//            }
+        }
         Box {
             BasicTextField(
                 mcc, onValueChange = {
@@ -819,7 +851,7 @@ fun MccPanel(
         }
         Text(
             fontSize = 12.sp,
-            modifier = Modifier.fillMaxWidth().padding(0.dp, 0.dp, 0.dp, 5.dp),
+            modifier = Modifier.fillMaxWidth().padding(0.dp, 5.dp, 0.dp, 5.dp),
             textAlign = TextAlign.Start,
             fontWeight = FontWeight(600),
             text = "Test Level: [$honorCurrentMccLevel]  Oversea Enabled: [$honorCurrentMccOverseaEnable]"
@@ -846,20 +878,54 @@ fun MccPanel(
 @Composable
 fun AdbExecuteButton(text: String, onClick: () -> Unit) {
     Text(
-        modifier = Modifier.padding(end = 5.dp, bottom = 5.dp).clickable(
+        modifier = Modifier.height(30.dp).padding(end = 5.dp, bottom = 5.dp).clickable(
             interactionSource = MutableInteractionSource(), indication = PressedIndication()
         ) {
             onClick.invoke()
         }.background(Color.White, RoundedCornerShape(4.dp)).border(
             width = 1.dp, color = ColorTheme, shape = RoundedCornerShape(4.dp)
-        ).padding(horizontal = 5.dp, vertical = 5.dp),
+        ).padding(vertical = 5.dp, horizontal = 5.dp),
+        textAlign = TextAlign.Center,
         text = text,
-        lineHeight = 12.sp,
+        lineHeight = 0.sp,
         color = ColorTheme,
         fontWeight = FontWeight(500),
         fontStyle = FontStyle.Normal,
         fontSize = 12.sp,
     )
+}
+
+@Composable
+fun AdbExecuteButton(resource: DrawableResource, text: String = "", onClick: () -> Unit) {
+    Row(
+        modifier = Modifier.height(30.dp).padding(end = 5.dp, bottom = 5.dp).clickable(
+            interactionSource = MutableInteractionSource(), indication = PressedIndication()
+        ) {
+            onClick.invoke()
+        }.background(Color.White, RoundedCornerShape(4.dp)).border(
+            width = 1.dp, color = ColorTheme, shape = RoundedCornerShape(4.dp)
+        ).padding(vertical = 5.dp, horizontal = 5.dp),
+    ) {
+        Image(
+            painter = painterResource(resource),
+            "",
+            colorFilter = ColorFilter.tint(
+                ColorTheme
+            ),
+        )
+        if (text.isNotEmpty()) {
+            Text(
+                textAlign = TextAlign.Center,
+                text = text,
+                lineHeight = 0.sp,
+                color = ColorTheme,
+                fontWeight = FontWeight(500),
+                fontStyle = FontStyle.Normal,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(start = 2.dp)
+            )
+        }
+    }
 }
 
 fun appendOutput(oldText: String, text: String): String {
