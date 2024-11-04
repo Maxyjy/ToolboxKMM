@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.sp
  * @author YangJianyu
  * @date 2024/8/30
  */
-val ColorPanelBackgroundMac = Color(0xfff7f7f7)
+val ColorPanelBackground = Color(0xfff7f7f7)
 val ColorPanelBackgroundWin = Color(0xfffffff)
 
 val ColorText = Color(0xe6000000)

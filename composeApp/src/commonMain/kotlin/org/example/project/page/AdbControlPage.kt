@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ModifierInfo
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -977,38 +978,43 @@ fun TextInputPanel(onButtonClick: (String) -> Any) {
 
 @Composable
 fun AdbExecuteButton(text: String, onClick: () -> Unit) {
-    Text(
-        modifier = Modifier.height(30.dp).padding(end = 5.dp, bottom = 5.dp).clickable(
+    Box(
+        modifier = Modifier.padding(end = 5.dp, bottom = 5.dp).clickable(
             interactionSource = MutableInteractionSource(), indication = PressedIndication()
         ) {
             onClick.invoke()
         }.background(Color.White, RoundedCornerShape(4.dp)).border(
             width = 1.dp, color = ColorTheme, shape = RoundedCornerShape(4.dp)
-        ).padding(vertical = 5.dp, horizontal = 5.dp),
-        textAlign = TextAlign.Center,
-        text = text,
-        lineHeight = 0.sp,
-        color = ColorTheme,
-        fontWeight = FontWeight(500),
-        fontStyle = FontStyle.Normal,
-        fontSize = 12.sp,
-    )
+        ).padding(vertical = 5.dp, horizontal = 5.dp)
+    ) {
+        Text(
+            textAlign = TextAlign.Center,
+            text = text,
+            lineHeight = 12.sp,
+            color = ColorTheme,
+            fontWeight = FontWeight(500),
+            fontStyle = FontStyle.Normal,
+            fontSize = 12.sp,
+        )
+    }
 }
 
 @Composable
 fun AdbExecuteButton(resource: DrawableResource, text: String = "", onClick: () -> Unit) {
     Row(
-        modifier = Modifier.height(30.dp).padding(end = 5.dp, bottom = 5.dp).clickable(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(end = 5.dp, bottom = 5.dp).clickable(
             interactionSource = MutableInteractionSource(), indication = PressedIndication()
         ) {
             onClick.invoke()
         }.background(Color.White, RoundedCornerShape(4.dp)).border(
             width = 1.dp, color = ColorTheme, shape = RoundedCornerShape(4.dp)
-        ).padding(vertical = 5.dp, horizontal = 5.dp),
+        ).padding(5.dp),
     ) {
         Image(
             painter = painterResource(resource),
             "",
+            modifier = Modifier.height(15.dp).width(15.dp),
             colorFilter = ColorFilter.tint(
                 ColorTheme
             ),
@@ -1017,7 +1023,7 @@ fun AdbExecuteButton(resource: DrawableResource, text: String = "", onClick: () 
             Text(
                 textAlign = TextAlign.Center,
                 text = text,
-                lineHeight = 0.sp,
+                lineHeight = 12.sp,
                 color = ColorTheme,
                 fontWeight = FontWeight(500),
                 fontStyle = FontStyle.Normal,

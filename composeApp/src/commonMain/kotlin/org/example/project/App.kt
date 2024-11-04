@@ -38,24 +38,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import io.github.vinceglb.filekit.compose.rememberDirectoryPickerLauncher
-import io.github.vinceglb.filekit.core.FileKit
 import kotlinproject.composeapp.generated.resources.Res
 import kotlinproject.composeapp.generated.resources.icon_folder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.example.project.adb.ADB_ANDROID_VERSION
-import org.example.project.adb.ADB_APP_VERSION
-import org.example.project.adb.ADB_DEVICE_BRAND
-import org.example.project.adb.ADB_DEVICE_NAME
-import org.example.project.adb.ADB_HONOR_GET_MCC
-import org.example.project.adb.ADB_HONOR_GET_MCC_ENABLE_OVERSEA
-import org.example.project.adb.ADB_HONOR_GET_MCC_LEVEL
 import org.example.project.component.ColorDivider
 import org.example.project.component.ColorGray
-import org.example.project.component.ColorPanelBackgroundMac
-import org.example.project.component.ColorPanelBackgroundWin
+import org.example.project.component.ColorPanelBackground
 import org.example.project.component.ColorText
 import org.example.project.component.ColorTheme
 import org.example.project.component.DimenDivider
@@ -236,11 +226,7 @@ fun App(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
                     .fillMaxWidth()
                     .fillMaxHeight()
                     .background(
-                        if (getSystemName().contains("mac", true)) {
-                            ColorPanelBackgroundMac
-                        } else {
-                            ColorPanelBackgroundWin
-                        }
+                        ColorPanelBackground
                     )
                     .padding(20.dp),
             ) {
