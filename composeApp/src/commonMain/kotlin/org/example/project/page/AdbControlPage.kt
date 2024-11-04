@@ -772,7 +772,7 @@ fun HonorMccPanel(
     Column() {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth().padding(0.dp, 6.dp, 0.dp, 6.dp)
+            modifier = Modifier.fillMaxWidth().padding(0.dp, 5.dp, 0.dp, 5.dp)
         ) {
             Text(
                 lineHeight = 12.sp,
@@ -797,7 +797,7 @@ fun HonorMccPanel(
                     colorFilter = ColorFilter.tint(
                         ColorDivider
                     ),
-                    modifier = Modifier.align(Alignment.End).padding(end = 5.dp)
+                    modifier = Modifier.align(Alignment.End)
                         .height(20.dp)
                         .width(20.dp).clickable(
                             interactionSource = MutableInteractionSource(),
@@ -857,7 +857,7 @@ fun HonorMccPanel(
                 }
             }
         } else {
-            Box {
+            Box(modifier = Modifier.padding(bottom = 2.dp)) {
                 BasicTextField(
                     mcc,
                     textStyle = TextStyle(
@@ -904,7 +904,7 @@ fun HonorMccPanel(
         }
         Text(
             fontSize = 12.sp,
-            modifier = Modifier.fillMaxWidth().padding(0.dp, 5.dp, 0.dp, 5.dp),
+            modifier = Modifier.fillMaxWidth().padding(0.dp, 2.dp, 0.dp, 5.dp),
             textAlign = TextAlign.Start,
             fontWeight = FontWeight(600),
             text = "Test Level: [$honorCurrentMccLevel]  Oversea Enabled: [$honorCurrentMccOverseaEnable]"
@@ -1014,7 +1014,7 @@ fun AdbExecuteButton(resource: DrawableResource, text: String = "", onClick: () 
         Image(
             painter = painterResource(resource),
             "",
-            modifier = Modifier.height(15.dp).width(15.dp),
+            modifier = Modifier.height(13.dp).width(13.dp),
             colorFilter = ColorFilter.tint(
                 ColorTheme
             ),
