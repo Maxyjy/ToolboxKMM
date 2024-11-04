@@ -4,8 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -25,8 +23,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Divider
-import androidx.compose.material.DrawerDefaults.scrimColor
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -36,10 +32,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -60,6 +54,7 @@ import kotlinproject.composeapp.generated.resources.icon_folder
 import kotlinproject.composeapp.generated.resources.icon_recorder_play
 import kotlinproject.composeapp.generated.resources.icon_recorder_stop
 import kotlinproject.composeapp.generated.resources.icon_send
+import kotlinproject.composeapp.generated.resources.icon_switch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -104,7 +99,6 @@ import org.example.project.adb.ADB_ROOT
 import org.example.project.adb.ADB_SAVE_SCREEN_SHOT
 import org.example.project.adb.ADB_SCREEN_SHOT
 import org.example.project.adb.ADB_SCREEN_START_RECORD
-import org.example.project.adb.ADB_SCREEN_FIND_RECORD_PID
 import org.example.project.adb.ADB_SCREEN_ON
 import org.example.project.adb.ADB_SCREEN_STOP_RECORD
 import org.example.project.adb.ADB_SCREEN_SWIPE
@@ -120,10 +114,8 @@ import org.example.project.adb.SPACE_HOLDER
 import org.example.project.component.ColorGray
 import org.example.project.component.PressedIndication
 import org.example.project.component.RButton
-import org.example.project.formatTime
 import org.example.project.getSystemCurrentTimeMillis
 import org.example.project.util.AppPreferencesKey
-import org.example.project.util.AppPreferencesKey.ANDROID_HOME_PATH
 import org.example.project.util.AppPreferencesKey.SCRCPY_HOME_PATH
 import org.example.project.util.SettingsDelegate
 import org.jetbrains.compose.resources.DrawableResource
@@ -260,6 +252,8 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                             if (getSystemCurrentTimeMillis() - appVersionNameDuration >= 1000L) {
                                 if (line.contains("versionName")) {
                                     appVersionName = line.replace("versionName=", "").trim()
+                                } else {
+                                    appVersionName = ""
                                 }
                             }
                             appVersionNameDuration = getSystemCurrentTimeMillis()
@@ -470,7 +464,6 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                     modifier = Modifier.verticalScroll(rememberScrollState()).width(280.dp)
                         .padding(start = 20.dp)
                 ) {
-
                     val onButtonClick = { rawCommand: String ->
                         val adbCommand = rawCommand
                         // require package name
@@ -533,7 +526,7 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                     Column {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(0.dp, 18.dp, 0.dp, 5.dp)
+                            modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 5.dp)
                         ) {
                             Text(
                                 fontSize = 12.sp,
@@ -564,20 +557,19 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                         Spacer(modifier = Modifier.height(2.dp))
                     }
                     AppPanel(appVersionName, onButtonClick)
-                    SettingPanel(onButtonClick)
+                    SettingPanel(deviceBrand, onButtonClick)
                     DevicePanel(onButtonClick)
-                    ScreenPanel(
-                        onButtonClick
-                    )
-                    MccPanel(
-                        honorCurrentMcc,
-                        honorCurrentMccLevel,
-                        honorCurrentMccOverseaEnable,
-                        onButtonClick,
-                        onHoverListener = { isHoverd ->
-
-                        }
-                    )
+                    if (deviceBrand.contains("HONOR")) {
+                        HonorScreenPanel(
+                            onButtonClick
+                        )
+                        HonorMccPanel(
+                            honorCurrentMcc,
+                            honorCurrentMccLevel,
+                            honorCurrentMccOverseaEnable,
+                            onButtonClick
+                        )
+                    }
                 }
             }
         }
@@ -678,7 +670,8 @@ fun DevicePanel(onButtonClick: (String) -> Any) {
 }
 
 @Composable
-fun SettingPanel(onButtonClick: (String) -> Any) {
+fun SettingPanel(deviceBrand: String, onButtonClick: (String) -> Any) {
+    val brand by remember { mutableStateOf(deviceBrand) }
     Column {
         Text(
             fontSize = 12.sp,
@@ -707,8 +700,10 @@ fun SettingPanel(onButtonClick: (String) -> Any) {
             }
         }
         Row {
-            AdbExecuteButton("SIM Manage") {
-                onButtonClick.invoke(ADB_OPEN_HONOR_SIM_SETTING)
+            if (brand.contains("HONOR")) {
+                AdbExecuteButton("SIM Manage") {
+                    onButtonClick.invoke(ADB_OPEN_HONOR_SIM_SETTING)
+                }
             }
             AdbExecuteButton("Wifi") {
                 onButtonClick.invoke(ADB_OPEN_WIFI_SETTING)
@@ -721,7 +716,7 @@ fun SettingPanel(onButtonClick: (String) -> Any) {
 }
 
 @Composable
-fun ScreenPanel(
+fun HonorScreenPanel(
     onButtonClick: (String) -> Any
 ) {
     Column {
@@ -731,7 +726,7 @@ fun ScreenPanel(
                 modifier = Modifier.wrapContentWidth().padding(0.dp, 0.dp, 0.dp, 5.dp),
                 textAlign = TextAlign.Start,
                 fontWeight = FontWeight(600),
-                text = "ScreenShot / Record"
+                text = "Honor ScreenShot / Record"
             )
         }
         Row(modifier = Modifier.wrapContentHeight().height(intrinsicSize = IntrinsicSize.Max)) {
@@ -762,16 +757,16 @@ fun ScreenPanel(
 }
 
 @Composable
-fun MccPanel(
+fun HonorMccPanel(
     honorCurrentMcc: String,
     honorCurrentMccLevel: String,
     honorCurrentMccOverseaEnable: Boolean,
     onButtonClick: (String) -> Any,
-    onHoverListener: (Boolean) -> Unit,
 ) {
     var mcc by remember { mutableStateOf(honorCurrentMcc) }
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
+    var fastMode by remember { mutableStateOf(true) }
 
     Column() {
         Row(
@@ -794,60 +789,117 @@ fun MccPanel(
                 text = "[$honorCurrentMcc]",
                 fontWeight = FontWeight(600),
             )
-//            Row(
-//                horizontalArrangement = Arrangement.End,
-//                modifier = Modifier.wrapContentWidth().padding(start = 5.dp)
-//                    .hoverable(interactionSource = interactionSource),
-//                verticalAlignment = Alignment.CenterVertically,
-//            ) {
-//                onHoverListener.invoke(isHovered)
-//                Image(
-//                    painter = painterResource(Res.drawable.icon_mcc),
-//                    "mcc",
-//                    colorFilter = ColorFilter.tint(
-//                        if (isHovered) {
-//                            ColorTheme
-//                        } else {
-//                            ColorDisable
-//                        }
-//                    ),
-//                    modifier = Modifier
-//                        .height(16.dp)
-//                        .width(16.dp),
-//                )
-//            }
+            Column(modifier = Modifier.weight(1f)) {
+                Image(
+                    painter = painterResource(Res.drawable.icon_switch),
+                    "change mode",
+                    colorFilter = ColorFilter.tint(
+                        ColorDivider
+                    ),
+                    modifier = Modifier.align(Alignment.End).padding(end = 5.dp)
+                        .height(20.dp)
+                        .width(20.dp).clickable(
+                            interactionSource = MutableInteractionSource(),
+                            indication = PressedIndication(radius = 4f)
+                        ) {
+                            fastMode = !fastMode
+                            println("fastMode$fastMode")
+                        }.padding(3.dp),
+                )
+            }
         }
-        Box {
-            BasicTextField(
-                mcc, onValueChange = {
-                    mcc = it
-                }, modifier = Modifier.fillMaxWidth().wrapContentHeight().border(
-                    DimenDivider,
-                    color = ColorDivider,
-                    shape = RoundedCornerShape(RoundedCorner)
-                ).background(
-                    Color.White, RoundedCornerShape(RoundedCorner)
-                ).padding(top = 8.dp, bottom = 8.dp, start = 10.dp, end = 10.dp)
-            )
-            Image(
-                painter = painterResource(Res.drawable.icon_send),
-                "send mcc",
-                colorFilter = ColorFilter.tint(
-                    ColorText
-                ),
-                modifier = Modifier.align(Alignment.CenterEnd).padding(end = 5.dp).height(20.dp)
-                    .width(20.dp).clickable {
-                        CoroutineScope(Dispatchers.Main).launch {
-                            onButtonClick.invoke(ADB_HONOR_PUT_MCC.replace(MCC_HOLDER, mcc))
-                            delay(1000L)
-                            onButtonClick.invoke(
-                                ADB_HONOR_MCC_BROAD_CAST_SEND.replace(
-                                    MCC_HOLDER, mcc
-                                )
+        if (fastMode) {
+            Row {
+                AdbExecuteButton("CN 460") {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        onButtonClick.invoke(ADB_HONOR_PUT_MCC.replace(MCC_HOLDER, "460"))
+                        delay(1000L)
+                        onButtonClick.invoke(
+                            ADB_HONOR_MCC_BROAD_CAST_SEND.replace(
+                                MCC_HOLDER, mcc
                             )
-                        }
-                    },
-            )
+                        )
+                    }
+                }
+                AdbExecuteButton("HK 454") {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        onButtonClick.invoke(ADB_HONOR_PUT_MCC.replace(MCC_HOLDER, "454"))
+                        delay(1000L)
+                        onButtonClick.invoke(
+                            ADB_HONOR_MCC_BROAD_CAST_SEND.replace(
+                                MCC_HOLDER, mcc
+                            )
+                        )
+                    }
+                }
+                AdbExecuteButton("MO 455") {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        onButtonClick.invoke(ADB_HONOR_PUT_MCC.replace(MCC_HOLDER, "455"))
+                        delay(1000L)
+                        onButtonClick.invoke(
+                            ADB_HONOR_MCC_BROAD_CAST_SEND.replace(
+                                MCC_HOLDER, mcc
+                            )
+                        )
+                    }
+                }
+                AdbExecuteButton("TW 466") {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        onButtonClick.invoke(ADB_HONOR_PUT_MCC.replace(MCC_HOLDER, "466"))
+                        delay(1000L)
+                        onButtonClick.invoke(
+                            ADB_HONOR_MCC_BROAD_CAST_SEND.replace(
+                                MCC_HOLDER, mcc
+                            )
+                        )
+                    }
+                }
+            }
+        } else {
+            Box {
+                BasicTextField(
+                    mcc,
+                    textStyle = TextStyle(
+                        fontSize = 12.sp,
+                        lineHeight = 12.sp,
+                        fontWeight = FontWeight(500),
+                        fontStyle = FontStyle.Normal,
+                    ),
+                    onValueChange = {
+                        mcc = it
+                    }, modifier = Modifier.fillMaxWidth().border(
+                        DimenDivider,
+                        color = ColorDivider,
+                        shape = RoundedCornerShape(RoundedCorner)
+                    ).background(
+                        Color.White, RoundedCornerShape(RoundedCorner)
+                    ).padding(vertical = 8.dp, horizontal = 10.dp)
+                )
+                Image(
+                    painter = painterResource(Res.drawable.icon_send),
+                    "send mcc",
+                    colorFilter = ColorFilter.tint(
+                        ColorText
+                    ),
+                    modifier = Modifier.align(Alignment.CenterEnd).padding(end = 5.dp).height(20.dp)
+                        .width(20.dp).clickable(
+                            interactionSource = MutableInteractionSource(),
+                            indication = PressedIndication(radius = 4f)
+                        ) {
+                            CoroutineScope(Dispatchers.Main).launch {
+                                if (mcc.isNotEmpty()) {
+                                    onButtonClick.invoke(ADB_HONOR_PUT_MCC.replace(MCC_HOLDER, mcc))
+                                    delay(1000L)
+                                    onButtonClick.invoke(
+                                        ADB_HONOR_MCC_BROAD_CAST_SEND.replace(
+                                            MCC_HOLDER, mcc
+                                        )
+                                    )
+                                }
+                            }
+                        },
+                )
+            }
         }
         Text(
             fontSize = 12.sp,
@@ -871,6 +923,54 @@ fun MccPanel(
             AdbExecuteButton("Oversea Disable") {
                 onButtonClick.invoke(ADB_HONOR_DELETE_MCC_ENABLE_OVERSEA)
             }
+        }
+    }
+}
+
+@Composable
+fun TextInputPanel(onButtonClick: (String) -> Any) {
+    var inputText by remember { mutableStateOf("") }
+    Column {
+        Text(
+            fontSize = 12.sp,
+            modifier = Modifier.fillMaxWidth().padding(0.dp, 0.dp, 0.dp, 5.dp),
+            textAlign = TextAlign.Start,
+            fontWeight = FontWeight(600),
+            text = "Text Input"
+        )
+        Box {
+            BasicTextField(
+                inputText,
+                textStyle = TextStyle(
+                    fontSize = 12.sp,
+                    lineHeight = 12.sp,
+                    fontWeight = FontWeight(500),
+                    fontStyle = FontStyle.Normal,
+                ),
+                onValueChange = {
+                    inputText = it
+                }, modifier = Modifier.fillMaxWidth().border(
+                    DimenDivider,
+                    color = ColorDivider,
+                    shape = RoundedCornerShape(RoundedCorner)
+                ).background(
+                    Color.White, RoundedCornerShape(RoundedCorner)
+                ).padding(vertical = 8.dp, horizontal = 10.dp)
+            )
+            Image(
+                painter = painterResource(Res.drawable.icon_send),
+                "input text",
+                colorFilter = ColorFilter.tint(
+                    ColorText
+                ),
+                modifier = Modifier.align(Alignment.CenterEnd).padding(end = 5.dp).height(20.dp)
+                    .width(20.dp).clickable(
+                        interactionSource = MutableInteractionSource(),
+                        indication = PressedIndication(radius = 4f)
+                    ) {
+                        onButtonClick.invoke(ADB_HONOR_PUT_MCC.replace(MCC_HOLDER, inputText))
+                    },
+            )
         }
     }
 }
