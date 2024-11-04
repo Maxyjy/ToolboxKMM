@@ -42,7 +42,9 @@ import kotlinproject.composeapp.generated.resources.icon_kotlin
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.example.project.component.ColorDisable
 import org.example.project.component.ColorDivider
+import org.example.project.component.ColorText
 import org.example.project.component.ColorTheme
 import org.example.project.component.DimenDivider
 import org.example.project.component.PressedIndication
@@ -107,134 +109,161 @@ fun SettingsPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            "Settings",
-            fontSize = 30.sp,
-            fontWeight = FontWeight(700),
-            modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 20.dp)
-        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                "Settings",
+                fontSize = 30.sp,
+                fontWeight = FontWeight(700),
+                modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 20.dp)
+            )
 
-        Text(
-            text = "Android Home Path :",
-            fontSize = 14.sp,
-            modifier = Modifier.padding(2.dp, 0.dp, 0.dp, 10.dp),
-            textAlign = TextAlign.Start,
-        )
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth(1f)
-                .height(55.dp)
-                .padding(0.dp, 0.dp, 0.dp, 10.dp)
-                .border(
-                    DimenDivider,
-                    color = ColorDivider,
-                    shape = RoundedCornerShape(RoundedCorner)
-                ).background(
-                    Color.White,
-                    RoundedCornerShape(RoundedCorner)
-                )
-        ) {
-            BasicTextField(
-                value = if (androidHomePath == "null") {
-                    ""
-                } else {
-                    androidHomePath
-                },
-                onValueChange = {
-                    androidHomePath = it
-                    CoroutineScope(Dispatchers.Default).launch {
-                        SettingsDelegate.putString(
-                            AppPreferencesKey.ANDROID_HOME_PATH, androidHomePath
-                        )
-                    }
-                },
-                modifier = Modifier.weight(1f)
-                    .padding(start = 15.dp, top = 10.dp, end = 15.dp, bottom = 10.dp)
+            Text(
+                text = "Android Home Path :",
+                fontSize = 14.sp,
+                modifier = Modifier.padding(2.dp, 0.dp, 0.dp, 10.dp),
+                textAlign = TextAlign.Start,
             )
-            Column(modifier = Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Center) {
-                Image(
-                    painter = painterResource(Res.drawable.icon_folder),
-                    "pick file",
-                    colorFilter = ColorFilter.tint(
-                        ColorTheme
-                    ),
-                    modifier = Modifier.padding(end = 8.dp)
-                        .height(26.dp)
-                        .width(26.dp).clickable(
-                            interactionSource = MutableInteractionSource(),
-                            indication = PressedIndication(8f)
-                        ) {
-                            androidHomePathPickLauncher.launch()
-                        }.padding(3.dp)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(1f)
+                    .height(55.dp)
+                    .padding(0.dp, 0.dp, 0.dp, 10.dp)
+                    .border(
+                        DimenDivider,
+                        color = ColorDivider,
+                        shape = RoundedCornerShape(RoundedCorner)
+                    ).background(
+                        Color.White,
+                        RoundedCornerShape(RoundedCorner)
+                    )
+            ) {
+                BasicTextField(
+                    value = if (androidHomePath == "null") {
+                        ""
+                    } else {
+                        androidHomePath
+                    },
+                    onValueChange = {
+                        androidHomePath = it
+                        CoroutineScope(Dispatchers.Default).launch {
+                            SettingsDelegate.putString(
+                                AppPreferencesKey.ANDROID_HOME_PATH, androidHomePath
+                            )
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                        .padding(start = 15.dp, top = 10.dp, end = 15.dp, bottom = 10.dp)
                 )
+                Column(
+                    modifier = Modifier.fillMaxHeight(),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Image(
+                        painter = painterResource(Res.drawable.icon_folder),
+                        "pick file",
+                        colorFilter = ColorFilter.tint(
+                            ColorTheme
+                        ),
+                        modifier = Modifier.padding(end = 8.dp)
+                            .height(26.dp)
+                            .width(26.dp).clickable(
+                                interactionSource = MutableInteractionSource(),
+                                indication = PressedIndication(8f)
+                            ) {
+                                androidHomePathPickLauncher.launch()
+                            }.padding(3.dp)
+                    )
+                }
             }
         }
-        Text(
-            text = "Scrcpy Path :",
-            fontSize = 14.sp,
-            modifier = Modifier.padding(2.dp, 0.dp, 0.dp, 10.dp),
-            textAlign = TextAlign.Start,
-        )
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth(1f)
-                .height(55.dp)
-                .padding(0.dp, 0.dp, 0.dp, 10.dp)
-                .border(
-                    DimenDivider,
-                    color = ColorDivider,
-                    shape = RoundedCornerShape(RoundedCorner)
-                ).background(
-                    Color.White,
-                    RoundedCornerShape(RoundedCorner)
+//        Text(
+//            text = "Scrcpy Path :",
+//            fontSize = 14.sp,
+//            modifier = Modifier.padding(2.dp, 0.dp, 0.dp, 10.dp),
+//            textAlign = TextAlign.Start,
+//        )
+//        Row(
+//            verticalAlignment = Alignment.CenterVertically,
+//            modifier = Modifier.fillMaxWidth(1f)
+//                .height(55.dp)
+//                .padding(0.dp, 0.dp, 0.dp, 10.dp)
+//                .border(
+//                    DimenDivider,
+//                    color = ColorDivider,
+//                    shape = RoundedCornerShape(RoundedCorner)
+//                ).background(
+//                    Color.White,
+//                    RoundedCornerShape(RoundedCorner)
+//                )
+//        ) {
+//            BasicTextField(
+//                value = if (scrcpyPath == "null") {
+//                    ""
+//                } else {
+//                    scrcpyPath
+//                },
+//                onValueChange = {
+//                    scrcpyPath = it
+//                    CoroutineScope(Dispatchers.Default).launch {
+//                        SettingsDelegate.putString(
+//                            AppPreferencesKey.SCRCPY_HOME_PATH, scrcpyPath
+//                        )
+//                    }
+//                },
+//                modifier = Modifier.weight(1f)
+//                    .padding(start = 15.dp, top = 10.dp, end = 15.dp, bottom = 10.dp)
+//            )
+//            Column(modifier = Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Center) {
+//                Image(
+//                    painter = painterResource(Res.drawable.icon_folder),
+//                    "pick file",
+//                    colorFilter = ColorFilter.tint(
+//                        ColorTheme
+//                    ),
+//                    modifier = Modifier.padding(end = 8.dp)
+//                        .height(26.dp)
+//                        .width(26.dp).clickable(
+//                            interactionSource = MutableInteractionSource(),
+//                            indication = PressedIndication(8f)
+//                        ) {
+//                            scrcpyPathPickLauncher.launch()
+//                        }.padding(3.dp)
+//                )
+//            }
+//        }
+        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.Bottom) {
+            Column {
+                Text(
+                    text = "Efficient ADB 1.2.1",
+                    fontSize = 20.sp,
+                    lineHeight = 20.sp,
+                    modifier = Modifier,
+                    color = ColorText,
+                    textAlign = TextAlign.Start,
                 )
-        ) {
-            BasicTextField(
-                value = if (scrcpyPath == "null") {
-                    ""
-                } else {
-                    scrcpyPath
-                },
-                onValueChange = {
-                    scrcpyPath = it
-                    CoroutineScope(Dispatchers.Default).launch {
-                        SettingsDelegate.putString(
-                            AppPreferencesKey.SCRCPY_HOME_PATH, scrcpyPath
-                        )
-                    }
-                },
-                modifier = Modifier.weight(1f)
-                    .padding(start = 15.dp, top = 10.dp, end = 15.dp, bottom = 10.dp)
-            )
-            Column(modifier = Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Center) {
-                Image(
-                    painter = painterResource(Res.drawable.icon_folder),
-                    "pick file",
-                    colorFilter = ColorFilter.tint(
-                        ColorTheme
-                    ),
-                    modifier = Modifier.padding(end = 8.dp)
-                        .height(26.dp)
-                        .width(26.dp).clickable(
-                            interactionSource = MutableInteractionSource(),
-                            indication = PressedIndication(8f)
-                        ) {
-                            scrcpyPathPickLauncher.launch()
-                        }.padding(3.dp)
+                Text(
+                    text = "Powered by",
+                    fontSize = 12.sp,
+                    lineHeight = 12.sp,
+                    modifier = Modifier.padding(top = 10.dp),
+                    color = ColorDisable,
+                    textAlign = TextAlign.Start,
                 )
             }
-        }
-        Column(verticalArrangement = Arrangement.Bottom, modifier = Modifier.weight(1f)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(top = 5.dp)
+            ) {
                 Image(
-                    modifier = Modifier.width(18.dp).padding(bottom = 0.dp),
+                    modifier = Modifier.width(14.dp).padding(bottom = 0.dp),
                     contentDescription = "kotlin icon",
                     painter = painterResource(Res.drawable.icon_kotlin)
                 )
                 Text(
                     text = "Kotlin MultiPlatform",
-                    fontSize = 18.sp,
-                    lineHeight = 18.sp,
+                    fontSize = 14.sp,
+                    lineHeight = 14.sp,
+                    color = ColorText,
                     modifier = Modifier.padding(start = 5.dp),
                     textAlign = TextAlign.Start,
                 )

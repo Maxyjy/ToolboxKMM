@@ -816,7 +816,7 @@ fun HonorMccPanel(
                         delay(1000L)
                         onButtonClick.invoke(
                             ADB_HONOR_MCC_BROAD_CAST_SEND.replace(
-                                MCC_HOLDER, mcc
+                                MCC_HOLDER, "460"
                             )
                         )
                     }
@@ -827,7 +827,7 @@ fun HonorMccPanel(
                         delay(1000L)
                         onButtonClick.invoke(
                             ADB_HONOR_MCC_BROAD_CAST_SEND.replace(
-                                MCC_HOLDER, mcc
+                                MCC_HOLDER, "454"
                             )
                         )
                     }
@@ -838,7 +838,7 @@ fun HonorMccPanel(
                         delay(1000L)
                         onButtonClick.invoke(
                             ADB_HONOR_MCC_BROAD_CAST_SEND.replace(
-                                MCC_HOLDER, mcc
+                                MCC_HOLDER, "455"
                             )
                         )
                     }
@@ -849,7 +849,7 @@ fun HonorMccPanel(
                         delay(1000L)
                         onButtonClick.invoke(
                             ADB_HONOR_MCC_BROAD_CAST_SEND.replace(
-                                MCC_HOLDER, mcc
+                                MCC_HOLDER, "466"
                             )
                         )
                     }
