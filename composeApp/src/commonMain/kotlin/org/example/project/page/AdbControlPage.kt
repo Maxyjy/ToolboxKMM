@@ -672,7 +672,6 @@ fun DevicePanel(onButtonClick: (String) -> Any) {
 
 @Composable
 fun SettingPanel(deviceBrand: String, onButtonClick: (String) -> Any) {
-    val brand by remember { mutableStateOf(deviceBrand) }
     Column {
         Text(
             fontSize = 12.sp,
@@ -701,7 +700,7 @@ fun SettingPanel(deviceBrand: String, onButtonClick: (String) -> Any) {
             }
         }
         Row {
-            if (brand.contains("HONOR")) {
+            if (deviceBrand.contains("HONOR")) {
                 AdbExecuteButton("SIM Manage") {
                     onButtonClick.invoke(ADB_OPEN_HONOR_SIM_SETTING)
                 }
