@@ -30,6 +30,7 @@ const val REMOVE_TARGET_PATH = "{REMOVE_TARGET_PATH}"
 
 const val MCC_HOLDER = "{MCC_HOLDER}"
 const val SPACE_HOLDER = "{SPACE_HOLDER}"
+const val TIME_STAMP_HOLDER = "{TIME_STAMP_HOLDER}"
 
 
 // root
@@ -94,7 +95,7 @@ const val ADB_DUMP_SHOW_TOP_ACTIVITY =
 const val ADB_FIND_ACTIVE_DISPLAY =
     "${ANDROID_HOME_PATH_HOLDER}adb${SPACE_HOLDER}shell${SPACE_HOLDER}dumpsys${SPACE_HOLDER}SurfaceFlinger${SPACE_HOLDER}|${SPACE_HOLDER}grep${SPACE_HOLDER}\\(active\\)"
 const val ADB_SCREEN_SHOT =
-    "${ANDROID_HOME_PATH_HOLDER}adb${SPACE_HOLDER}shell${SPACE_HOLDER}screencap${SPACE_HOLDER}/sdcard/Pictures/Screenshots/screen_shot.png${SPACE_HOLDER}-d${SPACE_HOLDER}${DISPLAY_ID_HOLDER}"
+    "${ANDROID_HOME_PATH_HOLDER}adb${SPACE_HOLDER}shell${SPACE_HOLDER}screencap${SPACE_HOLDER}/sdcard/Pictures/Screenshots/EffAdb_ScreenShot_${TIME_STAMP_HOLDER}.png${SPACE_HOLDER}-d${SPACE_HOLDER}${DISPLAY_ID_HOLDER}"
 const val ADB_SCREEN_START_RECORD =
     "${ANDROID_HOME_PATH_HOLDER}adb${SPACE_HOLDER}shell${SPACE_HOLDER}screenrecord${SPACE_HOLDER}/sdcard/Pictures/Screenshots/screen_record.mp4${SPACE_HOLDER}--d${SPACE_HOLDER}${DISPLAY_ID_HOLDER}"
 const val ADB_SCREEN_FIND_RECORD_PID =
@@ -150,7 +151,7 @@ const val ADB_HONOR_GET_MCC_ENABLE_OVERSEA =
 const val ADB_HONOR_PUT_MCC_ENABLE_OVERSEA =
     "${ANDROID_HOME_PATH_HOLDER}adb${SPACE_HOLDER}shell${SPACE_HOLDER}settings${SPACE_HOLDER}put${SPACE_HOLDER}global${SPACE_HOLDER}redtea_enable_succ_lev${SPACE_HOLDER}1" // 开启境外套餐
 const val ADB_HONOR_DELETE_MCC_ENABLE_OVERSEA =
-    "${ANDROID_HOME_PATH_HOLDER}adb${SPACE_HOLDER}shell${SPACE_HOLDER}settings${SPACE_HOLDER}delete${SPACE_HOLDER}system${SPACE_HOLDER}redtea_enable_succ_lev" // 关闭境外套餐
+    "${ANDROID_HOME_PATH_HOLDER}adb${SPACE_HOLDER}shell${SPACE_HOLDER}settings${SPACE_HOLDER}delete${SPACE_HOLDER}global${SPACE_HOLDER}redtea_enable_succ_lev" // 关闭境外套餐
 
 const val ADB_HONOR_GET_MCC_LEVEL =
     "${ANDROID_HOME_PATH_HOLDER}adb${SPACE_HOLDER}shell${SPACE_HOLDER}settings${SPACE_HOLDER}get${SPACE_HOLDER}system${SPACE_HOLDER}redtea_mcc_lev" // 启用 mcc 测试

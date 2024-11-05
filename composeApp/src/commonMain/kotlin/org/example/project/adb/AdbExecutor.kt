@@ -1,6 +1,7 @@
 package org.example.project.adb
 
 import org.example.project.executeADB
+import org.example.project.util.TimeUtil
 
 
 /**
@@ -75,6 +76,8 @@ object AdbExecutor {
         findActiveDisplayId { displayId ->
             if (!displayId.isNullOrEmpty() && displayId != "null") {
                 val adb = ADB_SCREEN_SHOT.replace(DISPLAY_ID_HOLDER, displayId)
+                    .replace(TIME_STAMP_HOLDER, TimeUtil.getReadableTime()
+                )
                 exec(adb, callback)
             } else {
                 callback.onPrint("display id is null, or no devices")
