@@ -763,7 +763,7 @@ fun HonorMccPanel(
     honorCurrentMccOverseaEnable: Boolean,
     onButtonClick: (String) -> Any,
 ) {
-    var mcc by remember { mutableStateOf(honorCurrentMcc) }
+    var mcc by remember { mutableStateOf("") }
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
     var fastMode by remember { mutableStateOf(true) }
