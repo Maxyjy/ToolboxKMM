@@ -28,7 +28,7 @@ fun main() = application {
         state = rememberWindowState(width = width.dp, height = height.dp),
         title = "Efficient ADB",
     ) {
-//        window.minimumSize = Dimension(width, height)
+        window.minimumSize = Dimension(400, height)
         App()
     }
 }

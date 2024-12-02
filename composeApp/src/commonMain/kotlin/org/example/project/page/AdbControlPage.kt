@@ -410,18 +410,23 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
             Text(
                 "Android Command Executor",
                 fontSize = 30.sp,
+                maxLines = 1,
                 fontWeight = FontWeight(700),
                 modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 20.dp)
             )
             Row {
                 Column(modifier = Modifier.weight(1f)) {
                     Row {
-                        Text(
-                            fontSize = 13.sp,
-                            modifier = Modifier.weight(1f).padding(2.dp, 0.dp, 0.dp, 0.dp),
-                            textAlign = TextAlign.Start,
-                            lineHeight = 13.sp,
-                            text = "$deviceBrand $deviceName ($deviceAndroidVersion)"
+                        BasicTextField(
+                            "$deviceBrand $deviceName ($deviceAndroidVersion)              ",
+                            textStyle = TextStyle(
+                                fontSize = 11.sp,
+                                lineHeight = 11.sp,
+                                color = Color(0xff686868),
+                                textAlign = TextAlign.Start
+                            ),
+                            onValueChange = {},
+                            modifier = Modifier.padding(2.dp, 5.dp, 20.dp, 10.dp),
                         )
                     }
                     BasicTextField(

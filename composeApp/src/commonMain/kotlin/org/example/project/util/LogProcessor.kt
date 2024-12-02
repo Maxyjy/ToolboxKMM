@@ -1,9 +1,7 @@
 package org.example.project.util
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.io.IOException
 import kotlinx.io.files.FileMetadata
@@ -73,11 +71,14 @@ class LogProcessor {
                             }
                         }
 
-                        listener.onStep(1f,"Log filter by package name result file [$rootPath$PACKAGE_ONLY_FILE]")
+                        listener.onStep(
+                            1f,
+                            "Log filter by package name result file [$rootPath$PACKAGE_ONLY_FILE]"
+                        )
                         listener.onResult(true)
                     }
                 } catch (e: Exception) {
-                    listener.onStep(0f,"exception :[${e.message}]")
+                    listener.onStep(0f, "exception :[${e.message}]")
                     listener.onResult(false)
                 }
             }
@@ -95,7 +96,7 @@ class LogProcessor {
                 }
             }
             // sort all gz file by index in file name
-            zipFiles.sortWith { a, b -> getIndexOfFile(a.name).compareTo(getIndexOfFile(b.name)) }
+            zipFiles.sortWith { a, b -> getTimeOfFile(a.name).compareTo(getTimeOfFile(b.name)) }
             return zipFiles
         }
 
@@ -109,12 +110,14 @@ class LogProcessor {
             return logFiles
         }
 
-        private fun getIndexOfFile(rawFileName: String): Int {
+        //I979.20241130-114105.gz
+        private fun getTimeOfFile(rawFileName: String): Long {
             var fileName = rawFileName
             fileName = fileName.replace(APP_LOG_PREFIX, "")
-            fileName = fileName.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }
-                .toTypedArray()[0].replace("I", "")
-            return fileName.toInt()
+            fileName = fileName.replace(".gz", "")
+            fileName = fileName.substring(5, fileName.length)
+            fileName = fileName.replace("-", "")
+            return fileName.toLong()
         }
 
         private fun findProcessId(fileName: String): ArrayList<Int> {

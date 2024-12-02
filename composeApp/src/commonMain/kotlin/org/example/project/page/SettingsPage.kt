@@ -234,7 +234,7 @@ fun SettingsPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.Bottom) {
             Column {
                 Text(
-                    text = "Efficient ADB 1.2.2",
+                    text = "Efficient ADB 1.2.3",
                     fontSize = 20.sp,
                     lineHeight = 20.sp,
                     modifier = Modifier,

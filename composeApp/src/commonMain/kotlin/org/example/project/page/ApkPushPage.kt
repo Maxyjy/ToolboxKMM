@@ -357,6 +357,7 @@ fun ApkPushPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
                 Text(
                     text = "Rename Hypercomm.apk to Hypercomm.apk.honor",
                     fontSize = 14.sp,
+                    maxLines = 1,
                     lineHeight = 14.sp,
                     modifier = Modifier,
                     textAlign = TextAlign.Center,
@@ -378,6 +379,7 @@ fun ApkPushPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
                     fontSize = 14.sp,
                     lineHeight = 14.sp,
                     modifier = Modifier,
+                    maxLines = 1,
                     textAlign = TextAlign.Center,
                 )
             }
@@ -397,6 +399,7 @@ fun ApkPushPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
                     fontSize = 14.sp,
                     lineHeight = 14.sp,
                     modifier = Modifier,
+                    maxLines = 1,
                     textAlign = TextAlign.Center,
                 )
             }
@@ -415,6 +418,7 @@ fun ApkPushPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current) {
                     text = "Push Redtea Signed RedteaRoaming Apk",
                     fontSize = 14.sp,
                     lineHeight = 14.sp,
+                    maxLines = 1,
                     modifier = Modifier,
                     textAlign = TextAlign.Center,
                 )
