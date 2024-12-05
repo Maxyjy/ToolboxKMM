@@ -33,3 +33,6 @@ google-services.json
 
 # Android Profiling
 *.hprof
+composeApp/.DS_Store
+.DS_Store
+composeApp/.DS_Store

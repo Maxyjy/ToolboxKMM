@@ -418,19 +418,19 @@ fun AdbControlPage(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current)
                 Column(modifier = Modifier.weight(1f)) {
                     Row {
                         BasicTextField(
-                            "$deviceBrand $deviceName ($deviceAndroidVersion)              ",
+                            "$deviceBrand $deviceName ($deviceAndroidVersion)",
                             textStyle = TextStyle(
-                                fontSize = 11.sp,
-                                lineHeight = 11.sp,
-                                color = Color(0xff686868),
+                                fontSize = 14.sp,
+                                lineHeight = 0.sp,
+                                color = ColorText,
                                 textAlign = TextAlign.Start
                             ),
                             onValueChange = {},
-                            modifier = Modifier.padding(2.dp, 5.dp, 20.dp, 10.dp),
+                            modifier = Modifier.padding(2.dp, 0.dp, 20.dp, 0.dp),
                         )
                     }
                     BasicTextField(
-                        "$deviceBuildVersion              ",
+                        "$deviceBuildVersion",
                         textStyle = TextStyle(
                             fontSize = 11.sp,
                             lineHeight = 11.sp,
